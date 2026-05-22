@@ -25,5 +25,5 @@ return [
             'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'default'),
         ],
     ],
-    'prefix' => env('CACHE_PREFIX', str('lockbymemories_cache')->slug('_')->toString()),
+    'prefix' => env('CACHE_PREFIX', str('filament_cache')->slug('_')->toString()),
 ];

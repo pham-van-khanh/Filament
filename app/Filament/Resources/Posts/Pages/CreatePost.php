@@ -11,6 +11,11 @@ class CreatePost extends CreateRecord
 {
     protected static string $resource = PostResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return route('admin.memories.editor', $this->record);
+    }
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['user_id'] = auth()->id();

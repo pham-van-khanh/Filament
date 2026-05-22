@@ -15,8 +15,11 @@ class SectionRenderer
 
     public function render(PostSection $section, Post $post, ?Collection $mediaById = null): string
     {
-        $type = $section->component_type;
-        $variant = $section->component_variant;
+        $type = str_replace('_', '-', $section->component_type);
+
+        $variant = $section->component_variant
+            ? str_replace('_', '-', $section->component_variant)
+            : null;
 
         $views = array_filter([
             $variant ? "frontend.sections.variants.{$type}.{$variant}" : null,

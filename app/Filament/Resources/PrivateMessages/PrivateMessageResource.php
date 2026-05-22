@@ -6,6 +6,7 @@ use App\Filament\Resources\PrivateMessages\Pages\CreatePrivateMessage;
 use App\Filament\Resources\PrivateMessages\Pages\EditPrivateMessage;
 use App\Filament\Resources\PrivateMessages\Pages\ListPrivateMessages;
 use App\Models\PrivateMessage;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -26,6 +27,8 @@ class PrivateMessageResource extends Resource
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-envelope';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Public';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {
@@ -51,7 +54,20 @@ class PrivateMessageResource extends Resource
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->filters([SelectFilter::make('status')->options(['unread' => 'Unread', 'read' => 'Read', 'archived' => 'Archived'])])
-            ->recordActions([EditAction::make()])
+            ->recordActions([
+                Action::make('mark_read')
+                    ->label('Mark read')
+                    ->icon('heroicon-o-envelope-open')
+                    ->color('success')
+                    ->visible(fn (PrivateMessage $record): bool => $record->status === 'unread')
+                    ->action(fn (PrivateMessage $record) => $record->update(['status' => 'read'])),
+                Action::make('archive')
+                    ->icon('heroicon-o-archive-box')
+                    ->color('gray')
+                    ->visible(fn (PrivateMessage $record): bool => $record->status !== 'archived')
+                    ->action(fn (PrivateMessage $record) => $record->update(['status' => 'archived'])),
+                EditAction::make(),
+            ])
             ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])])
             ->defaultSort('created_at', 'desc');
     }

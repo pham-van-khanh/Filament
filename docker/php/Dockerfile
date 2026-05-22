@@ -36,8 +36,11 @@ RUN pecl install xdebug \
 
 WORKDIR /var/www
 
-COPY docker/php/entrypoint.sh /usr/local/bin/lockbymemories-entrypoint
-RUN chmod +x /usr/local/bin/lockbymemories-entrypoint
+COPY docker/php/entrypoint.sh /usr/local/bin/entrypoint.sh
 
-ENTRYPOINT ["lockbymemories-entrypoint"]
+# Fix Windows CRLF -> Linux LF
+RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh \
+    && chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["php-fpm"]

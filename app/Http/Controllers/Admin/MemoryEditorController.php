@@ -90,8 +90,54 @@ class MemoryEditorController extends Controller
             ]);
         }
 
+        $mediaIds = $sections
+            ->flatMap(fn (array $section): array => $this->collectMediaIds($section['data'] ?? []))
+            ->when($post->cover_media_id, fn ($ids) => $ids->push($post->cover_media_id))
+            ->filter()
+            ->unique()
+            ->values();
+
+        $post->media()->sync(
+            $mediaIds->mapWithKeys(fn (int $mediaId, int $index): array => [
+                $mediaId => [
+                    'role' => $mediaId === $post->cover_media_id ? 'cover' : 'gallery',
+                    'sort_order' => $index + 1,
+                    'metadata' => json_encode(['source' => 'editor']),
+                ],
+            ])->all(),
+        );
+
         return redirect()
             ->route('admin.memories.editor', $post)
             ->with('status', 'Da luu memory.');
+    }
+
+    protected function collectMediaIds(mixed $value): array
+    {
+        if (! is_array($value)) {
+            return [];
+        }
+
+        $ids = [];
+
+        foreach ($value as $key => $item) {
+            if (in_array($key, ['media_id', 'image_id', 'cover_media_id', 'poster_id'], true) && is_numeric($item)) {
+                $ids[] = (int) $item;
+            }
+
+            if (in_array($key, ['media_ids', 'images'], true) && is_array($item)) {
+                foreach ($item as $id) {
+                    if (is_numeric($id)) {
+                        $ids[] = (int) $id;
+                    }
+                }
+            }
+
+            if (is_array($item)) {
+                $ids = [...$ids, ...$this->collectMediaIds($item)];
+            }
+        }
+
+        return $ids;
     }
 }

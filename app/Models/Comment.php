@@ -15,9 +15,18 @@ class Comment extends Model
         'post_id',
         'name',
         'email',
+        'relation',
         'content',
+        'is_private',
         'status',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_private' => 'boolean',
+        ];
+    }
 
     public function post(): BelongsTo
     {

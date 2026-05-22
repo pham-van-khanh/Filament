@@ -43,7 +43,9 @@
               <h2 class="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-neutral-500">{{ $group }}</h2>
               <div class="grid grid-cols-2 gap-3">
                 @foreach($items as $template)
-                  @php($primary = data_get($template->design_tokens, 'colors.primary', data_get($template->design_tokens, 'colors.accent', '#d84d80')))
+                  @php
+                    $primary = data_get($template->design_tokens, 'colors.primary', data_get($template->design_tokens, 'colors.accent', '#d84d80'));
+                  @endphp
                   <label class="cursor-pointer overflow-hidden rounded-2xl border bg-white {{ $post->template_id === $template->id ? 'border-[#e34d86] ring-2 ring-[#e34d86]/15' : 'border-black/15' }}">
                     <input type="radio" name="template_id" value="{{ $template->id }}" class="sr-only" @checked($post->template_id === $template->id)>
                     <span class="grid h-24 place-items-center text-xl" style="background: {{ data_get($template->design_tokens, 'colors.background', '#f7f7f4') }}; color: {{ $primary }}">□</span>
@@ -67,12 +69,16 @@
         </div>
 
         <div data-tab-panel="media" class="hidden p-5">
-          <a href="/admin/media/create" target="_blank" class="mb-4 block rounded-2xl border border-dashed border-[#e34d86] px-4 py-4 text-center font-semibold text-[#812744]">□ Them anh</a>
-          <div class="grid grid-cols-3 gap-2">
+          <label for="mediaUploadInput" class="mb-3 block cursor-pointer rounded-2xl border border-dashed border-[#e34d86] px-4 py-4 text-center font-semibold text-[#812744]">□ Upload anh</label>
+          <input id="mediaUploadInput" type="file" accept="image/*,video/*,audio/*,application/pdf" multiple class="sr-only">
+          <p id="mediaUploadStatus" class="mb-4 min-h-5 text-xs font-semibold text-neutral-500"></p>
+          <div id="mediaLibrary" class="grid grid-cols-3 gap-2">
             @foreach($media as $item)
               <button type="button" class="aspect-square overflow-hidden rounded-xl bg-neutral-100 ring-1 ring-black/5" data-media-id="{{ $item->id }}" title="{{ $item->original_name }}">
-                @if($item->display_url)
+                @if($item->display_url && $item->type === \App\Enums\MediaType::Image)
                   <img src="{{ $item->display_url }}" alt="{{ $item->alt }}" class="h-full w-full object-cover">
+                @else
+                  <span class="grid h-full place-items-center p-2 text-center text-xs font-semibold text-neutral-500">{{ $item->original_name }}</span>
                 @endif
               </button>
             @endforeach
@@ -180,9 +186,31 @@
               <span>Block dang chon</span>
               <input id="selectedBlockTitle" placeholder="Chon block tren canvas">
             </label>
+            <div class="mt-3 grid grid-cols-2 gap-3">
+              <label class="editor-field">
+                <span>Type</span>
+                <select id="selectedBlockType">
+                  @foreach($sectionTypes as $type)
+                    <option value="{{ $type->slug }}">{{ $type->name }}</option>
+                  @endforeach
+                </select>
+              </label>
+              <label class="editor-field">
+                <span>Variant</span>
+                <input id="selectedBlockVariant" placeholder="memory_header">
+              </label>
+            </div>
+            <label class="mt-3 flex items-center gap-2 text-sm font-semibold text-neutral-700">
+              <input type="checkbox" id="selectedBlockVisible">
+              Hien thi block nay
+            </label>
             <label class="editor-field mt-3">
               <span>Data JSON</span>
               <textarea id="selectedBlockData" rows="9" class="font-mono text-xs"></textarea>
+            </label>
+            <label class="editor-field mt-3">
+              <span>Style JSON</span>
+              <textarea id="selectedBlockStyle" rows="5" class="font-mono text-xs"></textarea>
             </label>
             <button type="button" id="applyBlock" class="mt-3 rounded-full bg-[#812744] px-4 py-2 text-sm font-semibold text-white">Cap nhat block</button>
             <button type="button" id="deleteBlock" class="mt-3 rounded-full px-4 py-2 text-sm font-semibold text-red-600">Xoa block</button>
@@ -192,10 +220,15 @@
     </div>
   </form>
 
-  <script>
-    const media = @json($media->map(fn ($item) => ['id' => $item->id, 'url' => $item->display_url, 'name' => $item->original_name])->values());
-    const sectionLabels = @json($sectionTypes->pluck('name', 'slug'));
-    let sections = @json($post->sections->map(fn ($section) => [
+  @php
+    $editorMedia = $media->map(fn ($item) => [
+      'id' => $item->id,
+      'url' => $item->display_url,
+      'name' => $item->original_name,
+      'type' => $item->type instanceof \BackedEnum ? $item->type->value : $item->type,
+    ])->values();
+
+    $editorSections = $post->sections->map(fn ($section) => [
       'type' => $section->type,
       'title' => $section->title,
       'subtitle' => $section->subtitle,
@@ -204,41 +237,121 @@
       'style' => $section->style,
       'settings' => $section->settings,
       'is_visible' => $section->is_visible,
-    ])->values());
+    ])->values();
+  @endphp
+
+  <script>
+    const media = @json($editorMedia);
+    const sectionLabels = @json($sectionTypes->pluck('name', 'slug'));
+    const mediaUploadUrl = @json(route('admin.media.upload'));
+    const csrfToken = @json(csrf_token());
+    let sections = @json($editorSections);
     let selected = 0;
 
     const canvas = document.getElementById('canvas');
     const sectionsJson = document.getElementById('sectionsJson');
     const selectedTitle = document.getElementById('selectedBlockTitle');
+    const selectedType = document.getElementById('selectedBlockType');
+    const selectedVariant = document.getElementById('selectedBlockVariant');
+    const selectedVisible = document.getElementById('selectedBlockVisible');
     const selectedData = document.getElementById('selectedBlockData');
+    const selectedStyle = document.getElementById('selectedBlockStyle');
+    const mediaLibrary = document.getElementById('mediaLibrary');
+    const mediaUploadInput = document.getElementById('mediaUploadInput');
+    const mediaUploadStatus = document.getElementById('mediaUploadStatus');
+    const coverMediaSelect = document.querySelector('[name=cover_media_id]');
 
     function mediaUrl(id) {
       return media.find((item) => Number(item.id) === Number(id))?.url || '';
+    }
+
+    function imageMediaItems() {
+      return media.filter((item) => item.type === 'image' || !item.type);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function addMediaToSelected(mediaId, caption = '') {
+      const section = sections[selected];
+      if (!section) return;
+
+      if (section.type === 'gallery_grid') section.data.media_ids = [...(section.data.media_ids || []), Number(mediaId)];
+      else if (section.type === 'gallery_slider') section.data.slides = [...(section.data.slides || []), { media_id: Number(mediaId), caption }];
+      else section.data.media_id = Number(mediaId);
+
+      render();
+    }
+
+    function bindMediaButton(button) {
+      button.addEventListener('click', () => addMediaToSelected(Number(button.dataset.mediaId), button.title));
+    }
+
+    function appendCoverMediaOption(item) {
+      if (!coverMediaSelect) return;
+
+      const option = document.createElement('option');
+      option.value = item.id;
+      option.textContent = item.name;
+      coverMediaSelect.prepend(option);
+    }
+
+    function appendMediaButton(item) {
+      if (!mediaLibrary) return;
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'aspect-square overflow-hidden rounded-xl bg-neutral-100 ring-1 ring-black/5';
+      button.dataset.mediaId = item.id;
+      button.title = item.name || '';
+
+      if (item.url && item.type === 'image') {
+        const image = document.createElement('img');
+        image.src = item.url;
+        image.alt = item.name || '';
+        image.className = 'h-full w-full object-cover';
+        button.appendChild(image);
+      } else {
+        const label = document.createElement('span');
+        label.className = 'grid h-full place-items-center p-2 text-center text-xs font-semibold text-neutral-500';
+        label.textContent = item.name || 'Media';
+        button.appendChild(label);
+      }
+
+      bindMediaButton(button);
+      mediaLibrary.prepend(button);
     }
 
     function blockPreview(section, index) {
       const title = section.data?.headline || section.title || sectionLabels[section.type] || section.type;
       const image = section.data?.media_id ? mediaUrl(section.data.media_id) : '';
       const active = index === selected ? 'border-[#e34d86] border-dashed' : 'border-transparent';
+      const hidden = section.is_visible === false ? 'opacity-45' : '';
 
       if (section.type === 'hero_image') {
-        return `<button type="button" data-index="${index}" class="editor-block ${active} relative h-44 w-full overflow-hidden bg-[#0F4C81] text-left text-white">
+        return `<button type="button" data-index="${index}" class="editor-block ${active} ${hidden} relative h-44 w-full overflow-hidden bg-[#0F4C81] text-left text-white">
           ${image ? `<img src="${image}" class="absolute inset-0 h-full w-full object-cover opacity-60">` : ''}
           <span class="absolute right-3 top-3 rounded-full bg-[#e34d86] px-3 py-1 text-xs font-bold">Hero</span>
-          <div class="absolute inset-x-0 bottom-0 p-5"><p class="mb-2 inline-flex rounded-full bg-white/15 px-3 py-1 text-xs">□ ${section.data?.tags?.[0] || 'Memory'}</p><h3 class="text-2xl font-bold">${title}</h3><p class="text-white/70">${section.data?.date_range || ''}</p></div>
+          <div class="absolute inset-x-0 bottom-0 p-5"><p class="mb-2 inline-flex rounded-full bg-white/15 px-3 py-1 text-xs">□ ${escapeHtml(section.data?.tags?.[0] || 'Memory')}</p><h3 class="text-2xl font-bold">${escapeHtml(title)}</h3><p class="text-white/70">${escapeHtml(section.data?.date_range || '')}</p></div>
         </button>`;
       }
 
       if (section.type === 'gallery_slider' || section.type === 'gallery_grid') {
         const ids = section.type === 'gallery_grid' ? (section.data?.media_ids || []) : (section.data?.slides || []).map((slide) => slide.media_id);
-        return `<button type="button" data-index="${index}" class="editor-block ${active} bg-white p-5 text-left"><p class="mb-3 font-semibold">${section.title || sectionLabels[section.type]}</p><div class="grid grid-cols-3 gap-2">${ids.slice(0, 3).map((id) => `<span class="block h-24 rounded-2xl bg-[#e7f2fb] bg-cover bg-center" style="background-image:url('${mediaUrl(id)}')"></span>`).join('')}</div></button>`;
+        return `<button type="button" data-index="${index}" class="editor-block ${active} ${hidden} bg-white p-5 text-left"><p class="mb-3 font-semibold">${escapeHtml(section.title || sectionLabels[section.type])}</p><div class="grid grid-cols-3 gap-2">${ids.slice(0, 3).map((id) => `<span class="block h-24 rounded-2xl bg-[#e7f2fb] bg-cover bg-center" style="background-image:url('${mediaUrl(id)}')"></span>`).join('')}</div></button>`;
       }
 
       if (section.type === 'quote') {
-        return `<button type="button" data-index="${index}" class="editor-block ${active} bg-[#f8dde8] p-5 text-left"><p class="font-serif text-xl">"${section.data?.quote || 'Quote'}"</p><p class="mt-3 text-sm text-[#812744]">${section.data?.author || ''}</p></button>`;
+        return `<button type="button" data-index="${index}" class="editor-block ${active} ${hidden} bg-[#f8dde8] p-5 text-left"><p class="font-serif text-xl">"${escapeHtml(section.data?.quote || 'Quote')}"</p><p class="mt-3 text-sm text-[#812744]">${escapeHtml(section.data?.author || '')}</p></button>`;
       }
 
-      return `<button type="button" data-index="${index}" class="editor-block ${active} bg-white p-5 text-left"><p class="font-semibold">□ ${sectionLabels[section.type] || section.type}</p><p class="mt-2 text-sm text-neutral-500">${title}</p></button>`;
+      return `<button type="button" data-index="${index}" class="editor-block ${active} ${hidden} bg-white p-5 text-left"><p class="font-semibold">□ ${escapeHtml(sectionLabels[section.type] || section.type)}</p><p class="mt-2 text-sm text-neutral-500">${escapeHtml(title)}</p></button>`;
     }
 
     function render() {
@@ -255,19 +368,24 @@
       const section = sections[selected];
       if (!section) return;
       selectedTitle.value = section.title || sectionLabels[section.type] || section.type;
+      selectedType.value = section.type;
+      selectedVariant.value = section.variant || '';
+      selectedVisible.checked = section.is_visible !== false;
       selectedData.value = JSON.stringify(section.data || {}, null, 2);
+      selectedStyle.value = JSON.stringify(section.style || {}, null, 2);
       sectionsJson.value = JSON.stringify(sections);
       if (rerender) render();
     }
 
     function defaultBlock(type) {
-      const firstImage = media[0]?.id || null;
+      const images = imageMediaItems();
+      const firstImage = images[0]?.id || null;
       const base = { type, title: sectionLabels[type] || type, subtitle: '', variant: '', data: {}, style: {}, settings: {}, is_visible: true };
-      if (type === 'hero_image') base.data = { media_id: firstImage, headline: document.querySelector('[name=title]').value, date_range: document.querySelector('[name=date_range]').value, tags: ['Du lich'] };
-      if (type === 'stats') base.data = { items: [['1', 'Ngay'], ['6', 'Anh'], ['24°', 'Thoi tiet'], ['1', 'Dia diem']] };
-      if (type === 'gallery_slider') base.data = { autoplay: false, slides: media.slice(0, 3).map((item) => ({ media_id: item.id, caption: item.name })) };
-      if (type === 'gallery_grid') base.data = { media_ids: media.slice(0, 4).map((item) => item.id), more_count: 0 };
-      if (type === 'quote') base.data = { quote: 'Mot khoanh khac nho nhung minh se giu rat lau.', author: 'chuaminh.vn' };
+      if (type === 'hero_image') Object.assign(base, { variant: 'memory_header', style: { '--section-height': '390px' }, data: { media_id: firstImage, headline: document.querySelector('[name=title]').value, date_range: document.querySelector('[name=date_range]').value, tags: ['Du lich'] } });
+      if (type === 'stats') Object.assign(base, { variant: 'mobile_row', data: { items: [['1', 'Ngay'], ['6', 'Anh'], ['24°', 'Thoi tiet'], ['1', 'Dia diem']] } });
+      if (type === 'gallery_slider') Object.assign(base, { variant: 'featured_moments', style: { '--section-height': '240px' }, data: { autoplay: false, slides: images.slice(0, 3).map((item) => ({ media_id: item.id, caption: item.name })) } });
+      if (type === 'gallery_grid') Object.assign(base, { variant: 'mosaic', data: { media_ids: images.slice(0, 4).map((item) => item.id), more_count: 0 } });
+      if (type === 'quote') Object.assign(base, { variant: 'soft_card', data: { quote: 'Mot khoanh khac nho nhung minh se giu rat lau.', author: 'chuaminh.vn' } });
       if (type === 'rich_text') base.data = { html: '<p>Viet mot doan ngan ve ky niem nay...</p>' };
       return base;
     }
@@ -298,10 +416,15 @@
     document.getElementById('applyBlock').addEventListener('click', () => {
       try {
         sections[selected].title = selectedTitle.value;
+        sections[selected].type = selectedType.value;
+        sections[selected].variant = selectedVariant.value;
+        sections[selected].is_visible = selectedVisible.checked;
         sections[selected].data = JSON.parse(selectedData.value || '{}');
+        sections[selected].style = JSON.parse(selectedStyle.value || '{}');
         render();
+        alert('updated.');
       } catch (error) {
-        alert('Data JSON chua hop le.');
+        alert('Data hoac style JSON chua hop le.');
       }
     });
 
@@ -318,15 +441,53 @@
       render();
     });
 
-    document.querySelectorAll('[data-media-id]').forEach((button) => {
-      button.addEventListener('click', () => {
-        const section = sections[selected];
-        if (!section) return;
-        if (section.type === 'gallery_grid') section.data.media_ids = [...(section.data.media_ids || []), Number(button.dataset.mediaId)];
-        else if (section.type === 'gallery_slider') section.data.slides = [...(section.data.slides || []), { media_id: Number(button.dataset.mediaId), caption: button.title }];
-        else section.data.media_id = Number(button.dataset.mediaId);
-        render();
-      });
+    document.querySelectorAll('[data-media-id]').forEach(bindMediaButton);
+
+    mediaUploadInput?.addEventListener('change', async () => {
+      const files = Array.from(mediaUploadInput.files || []);
+      if (!files.length) return;
+
+      mediaUploadStatus.textContent = `Dang tai ${files.length} tep...`;
+
+      try {
+        for (const file of files) {
+          const formData = new FormData();
+          formData.append('file', file);
+
+          const response = await fetch(mediaUploadUrl, {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'X-CSRF-TOKEN': csrfToken,
+            },
+            body: formData,
+          });
+
+          const payload = await response.json().catch(() => ({}));
+
+          if (!response.ok) {
+            throw new Error(payload.message || 'Upload that bai. Vui long thu lai.');
+          }
+
+          const item = {
+            id: payload.media.id,
+            url: payload.media.url || payload.media.display_url,
+            name: payload.media.name || payload.media.original_name,
+            type: payload.media.type,
+          };
+
+          media.unshift(item);
+          appendMediaButton(item);
+          appendCoverMediaOption(item);
+          addMediaToSelected(item.id, item.name);
+        }
+
+        mediaUploadStatus.textContent = `Da tai ${files.length} tep.`;
+      } catch (error) {
+        mediaUploadStatus.textContent = error.message;
+      } finally {
+        mediaUploadInput.value = '';
+      }
     });
 
     document.getElementById('mobilePreview').addEventListener('click', () => document.getElementById('canvasShell').style.width = '390px');

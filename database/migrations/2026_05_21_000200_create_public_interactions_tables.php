@@ -13,7 +13,9 @@ return new class extends Migration
             $table->foreignId('post_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('email')->nullable();
+            $table->string('relation')->nullable();
             $table->text('content');
+            $table->boolean('is_private')->default(false)->index();
             $table->string('status')->default('pending')->index();
             $table->timestamps();
 

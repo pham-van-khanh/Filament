@@ -1,53 +1,53 @@
 services:
-    lockbymemories_app:
+    filament_app:
         build:
             context: .
             dockerfile: docker/php/Dockerfile
-        container_name: lockbymemories_app
+        container_name: filament_app
         environment:
             DB_CONNECTION: mysql
-            DB_HOST: lockbymemories_db
+            DB_HOST: filament_db
             DB_PORT: 3306
-            DB_DATABASE: lockbymemories
-            DB_USERNAME: lockbymemories
-            DB_PASSWORD: lockbymemories
+            DB_DATABASE: filament
+            DB_USERNAME: filament
+            DB_PASSWORD: filament
         volumes:
             - .:/var/www
             - ./docker/php/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
         depends_on:
-            lockbymemories_db:
+            filament_db:
                 condition: service_healthy
         extra_hosts:
             - "host.docker.internal:host-gateway"
-    lockbymemories_nginx:
+    filament_nginx:
         image: nginx:alpine
-        container_name: lockbymemories_nginx
+        container_name: filament_nginx
         ports:
             - "8000:80"
         volumes:
             - .:/var/www
             - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
         depends_on:
-            - lockbymemories_app
+            - filament_app
 
-    lockbymemories_db:
+    filament_db:
         image: mysql:8.0
-        container_name: lockbymemories_db
+        container_name: filament_db
         restart: always
         environment:
-            MYSQL_DATABASE: lockbymemories
+            MYSQL_DATABASE: filament
             MYSQL_ROOT_PASSWORD: root
-            MYSQL_USER: lockbymemories
-            MYSQL_PASSWORD: lockbymemories
+            MYSQL_USER: filament
+            MYSQL_PASSWORD: filament
         ports:
             - "3306:3306"
         volumes:
-            - lockbymemories_dbdata:/var/lib/mysql
+            - filament_dbdata:/var/lib/mysql
         healthcheck:
-            test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ulockbymemories", "-plockbymemories"]
+            test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ufilament", "-pfilament"]
             interval: 5s
             timeout: 5s
             retries: 20
 
 volumes:
-    lockbymemories_dbdata:
+    filament_dbdata:

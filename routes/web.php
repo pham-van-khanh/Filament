@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\MediaUploadController;
+use App\Http\Controllers\Admin\MemoryEditorController;
+use App\Http\Controllers\Api\CommentController as ApiCommentController;
+use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Frontend\AboutController;
 use App\Http\Controllers\Frontend\ArchiveController;
 use App\Http\Controllers\Frontend\CategoryController;
@@ -9,14 +13,13 @@ use App\Http\Controllers\Frontend\GalleryController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\MemoryController;
 use App\Http\Controllers\Frontend\MemoryPasswordController;
-use App\Http\Controllers\Frontend\PrivateMessageController;
 use App\Http\Controllers\Frontend\PreviewPostController;
+use App\Http\Controllers\Frontend\PrivateMessageController;
 use App\Http\Controllers\Frontend\ReactionController;
 use App\Http\Controllers\Frontend\SearchController;
 use App\Http\Controllers\Frontend\TagController;
 use App\Http\Controllers\Frontend\TimelineController;
 use App\Http\Controllers\Frontend\UnlistedMemoryController;
-use App\Http\Controllers\Admin\MemoryEditorController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -28,6 +31,9 @@ Route::post('/memories/{post:slug}/password', [MemoryPasswordController::class, 
 Route::post('/memories/{post:slug}/comments', [CommentController::class, 'store'])->name('memories.comments.store');
 Route::post('/memories/{post:slug}/reactions', [ReactionController::class, 'store'])->name('memories.reactions.store');
 Route::post('/memories/{post:slug}/messages', [PrivateMessageController::class, 'store'])->name('memories.messages.store');
+
+Route::post('/api/memories/{post}/like', [LikeController::class, 'toggle'])->name('api.memories.like');
+Route::post('/api/memories/{post}/comment', [ApiCommentController::class, 'store'])->name('api.memories.comment');
 
 Route::get('/u/{token}', UnlistedMemoryController::class)->name('memories.unlisted');
 Route::get('/preview/memories/{post}', PreviewPostController::class)
@@ -45,6 +51,8 @@ Route::get('/archive', ArchiveController::class)->name('archive');
 Route::get('/featured', FeaturedController::class)->name('featured');
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function (): void {
+    Route::redirect('/dashboard', '/admin')->name('dashboard');
+    Route::post('/media/upload', MediaUploadController::class)->name('media.upload');
     Route::get('/memories/{post}/editor', [MemoryEditorController::class, 'edit'])->name('memories.editor');
     Route::put('/memories/{post}/editor', [MemoryEditorController::class, 'update'])->name('memories.editor.update');
 });

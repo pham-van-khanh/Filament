@@ -9,6 +9,7 @@ use App\Filament\Resources\Posts\Pages\EditPost;
 use App\Filament\Resources\Posts\Pages\ListPosts;
 use App\Models\Post;
 use App\Models\SectionType;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -38,6 +39,10 @@ class PostResource extends Resource
     protected static ?string $modelLabel = 'Memory';
 
     protected static ?string $pluralModelLabel = 'Memories';
+
+    protected static ?string $slug = 'memories';
+
+    protected static ?string $navigationLabel = 'Memories';
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-book-open';
 
@@ -156,13 +161,29 @@ class PostResource extends Resource
                 SelectFilter::make('category')->relationship('category', 'name'),
             ])
             ->recordActions([
-                \Filament\Actions\Action::make('editor')
+                Action::make('editor')
                     ->label('Open Editor')
                     ->icon('heroicon-o-sparkles')
                     ->url(fn (Post $record): string => route('admin.memories.editor', $record))
                     ->openUrlInNewTab(),
+                Action::make('publish')
+                    ->icon('heroicon-o-paper-airplane')
+                    ->color('success')
+                    ->visible(fn (Post $record): bool => $record->status !== PostStatus::Published)
+                    ->requiresConfirmation()
+                    ->action(fn (Post $record) => $record->update([
+                        'status' => PostStatus::Published,
+                        'visibility' => PostVisibility::Public,
+                        'published_at' => $record->published_at ?: now(),
+                    ])),
+                Action::make('hide')
+                    ->icon('heroicon-o-eye-slash')
+                    ->color('warning')
+                    ->visible(fn (Post $record): bool => $record->status === PostStatus::Published)
+                    ->requiresConfirmation()
+                    ->action(fn (Post $record) => $record->update(['status' => PostStatus::Hidden])),
                 EditAction::make(),
-                \Filament\Actions\Action::make('preview')
+                Action::make('preview')
                     ->icon('heroicon-o-eye')
                     ->url(fn (Post $record): string => URL::temporarySignedRoute('memories.preview', now()->addHour(), $record))
                     ->openUrlInNewTab(),

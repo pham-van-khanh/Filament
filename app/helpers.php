@@ -1,8 +1,5 @@
 <?php
 
-use HTMLPurifier;
-use HTMLPurifier_Config;
-
 if (! function_exists('clean_html')) {
     function clean_html(?string $html): string
     {
@@ -13,17 +10,22 @@ if (! function_exists('clean_html')) {
         static $purifier = null;
 
         if (! $purifier) {
-            $config = HTMLPurifier_Config::createDefault();
+            $config = \HTMLPurifier_Config::createDefault();
+
+            // Không ghi cache vào vendor, chuyển sang storage của Laravel
+            $config->set('Cache.SerializerPath', storage_path('app/htmlpurifier'));
+
             $config->set('HTML.Allowed', implode(',', [
                 'p', 'br', 'strong', 'b', 'em', 'i', 'u',
                 'a[href|title|target|rel]',
                 'ul', 'ol', 'li',
                 'blockquote', 'code', 'pre',
                 'h2', 'h3', 'h4',
-                'figure', 'figcaption',
             ]));
+
             $config->set('Attr.AllowedFrameTargets', ['_blank']);
-            $purifier = new HTMLPurifier($config);
+
+            $purifier = new \HTMLPurifier($config);
         }
 
         return $purifier->purify($html);

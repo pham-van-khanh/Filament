@@ -26,8 +26,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName('chuaminh.vn')
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Pink,
                 'gray' => Color::Zinc,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')

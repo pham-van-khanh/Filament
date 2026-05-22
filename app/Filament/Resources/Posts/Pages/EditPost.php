@@ -17,6 +17,11 @@ class EditPost extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('editor')
+                ->label('Open Editor')
+                ->icon('heroicon-o-sparkles')
+                ->url(fn () => route('admin.memories.editor', $this->record))
+                ->openUrlInNewTab(),
             Action::make('preview')
                 ->label('Preview')
                 ->icon('heroicon-o-eye')

@@ -10,7 +10,7 @@ return [
     'table' => env('SESSION_TABLE', 'sessions'),
     'store' => env('SESSION_STORE'),
     'lottery' => [2, 100],
-    'cookie' => env('SESSION_COOKIE', str(env('APP_NAME', 'lockbymemories'))->slug('_').'_session'),
+    'cookie' => env('SESSION_COOKIE', str(env('APP_NAME', 'filament'))->slug('_').'_session'),
     'path' => env('SESSION_PATH', '/'),
     'domain' => env('SESSION_DOMAIN'),
     'secure' => env('SESSION_SECURE_COOKIE'),

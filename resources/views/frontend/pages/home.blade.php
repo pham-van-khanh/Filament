@@ -16,9 +16,19 @@
       <div class="-mx-4 mb-7 overflow-x-auto px-4 [scrollbar-width:none]">
         <div class="flex min-w-max gap-5">
           @foreach($categories as $category)
+            @php
+              $stickerIcon = match(mb_strtolower(trim($category->name))) {
+                'tình yêu', 'tinh yeu' => '♡',
+                'du lịch', 'du lich' => '✈',
+                'dịp đặc biệt', 'dip dac biet' => '☆',
+                'ngày thường', 'ngay thuong' => '☼',
+                'khoảnh khắc', 'khoanh khac' => '📷',
+                default => '◌',
+              };
+            @endphp
             <a href="{{ route('categories.show', $category->slug) }}" class="w-[78px] text-center">
               <span class="mx-auto block h-[68px] w-[68px] rounded-full border-[3px] border-[#b85586] p-1 shadow-sm ring-2 ring-[#4f8cff]/45" style="background: color-mix(in srgb, {{ $category->color ?? '#d84d80' }} 18%, white)">
-                <span class="grid h-full w-full place-items-center rounded-full bg-white/45 text-sm" style="color: {{ $category->color ?? '#d84d80' }}">□</span>
+                <span class="grid h-full w-full place-items-center rounded-full bg-white/45 text-xl" style="color: {{ $category->color ?? '#d84d80' }}">{{ $stickerIcon }}</span>
               </span>
               <span class="mt-2 block truncate text-sm font-medium text-neutral-600">{{ $category->name }}</span>
             </a>
