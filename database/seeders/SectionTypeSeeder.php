@@ -10,21 +10,21 @@ class SectionTypeSeeder extends Seeder
     public function run(): void
     {
         $types = [
-            ['Hero Block', 'hero_image', 'visual', ['media_id' => 'integer', 'headline' => 'string', 'date_range' => 'string', 'tags' => 'array'], ['memory_header', 'card_invitation', 'fullscreen_overlay']],
-            ['Stats', 'stats', 'meta', ['items' => 'array'], ['mobile_row', 'compact']],
-            ['Rich Text', 'rich_text', 'text', ['html' => 'html'], ['prose', 'caption_note']],
-            ['Single Image', 'single_image', 'image', ['media_id' => 'integer', 'caption' => 'string'], ['centered', 'full_width', 'framed']],
-            ['Image Text', 'image_text', 'image', ['media_id' => 'integer', 'body' => 'html'], ['image_left_text_right', 'text_left_image_right', 'overlapping_card']],
-            ['Quote', 'quote', 'text', ['quote' => 'string', 'author' => 'string'], ['soft_card', 'large_center', 'side_note']],
-            ['Gallery Grid', 'gallery_grid', 'gallery', ['media_ids' => 'array'], ['mosaic', 'grid_2_columns', 'featured_left']],
-            ['Gallery Slider', 'gallery_slider', 'gallery', ['slides' => 'array'], ['featured_moments', 'minimal_slider', 'film_strip']],
-            ['Video Embed', 'video_embed', 'video', ['url' => 'url', 'caption' => 'string'], ['clean_embed', 'cinematic_frame']],
-            ['Music', 'music', 'audio', ['url' => 'url', 'title' => 'string', 'artist' => 'string'], ['floating_player']],
-            ['Timeline', 'timeline', 'timeline', ['items' => 'array'], ['vertical', 'image_cards', 'compact']],
-            ['Ending Section', 'ending', 'text', ['title' => 'string', 'body' => 'html'], ['soft_fade', 'signature', 'minimal']],
+            ['Hero Block', 'hero_image', 'visual', ['media_id' => 'integer', 'headline' => 'string'], ['memory_header'], true],
+            ['Stats', 'stats', 'meta', ['items' => 'array'], ['mobile_row'], true],
+            ['Single Image', 'single_image', 'image', ['media_id' => 'integer', 'caption' => 'string'], ['centered', 'full_width', 'framed'], true],
+            ['Gallery Grid', 'gallery_grid', 'gallery', ['items' => 'array'], ['mosaic', 'grid_2', 'grid_3', 'featured_left', 'masonry', 'film_strip', 'polaroid'], true],
+            ['Gallery Slider', 'gallery_slider', 'gallery', ['items' => 'array'], ['featured_moments', 'minimal_slider'], true],
+            ['Video Upload', 'video_embed', 'video', ['media_id' => 'integer', 'caption' => 'string'], ['clean_video', 'vertical'], true],
+            ['Quote', 'quote', 'text', ['quote' => 'string', 'author' => 'string'], ['soft_card', 'large_center'], true],
+            ['Music', 'music', 'audio', ['url' => 'url', 'title' => 'string', 'artist' => 'string'], ['floating_player'], true],
+            ['Rich Text', 'rich_text', 'legacy', ['html' => 'html'], ['prose'], false],
+            ['Image Text', 'image_text', 'legacy', ['media_id' => 'integer', 'body' => 'html'], ['image_left_text_right'], false],
+            ['Timeline', 'timeline', 'story', ['items' => 'array'], ['vertical'], true],
+            ['Ending Section', 'ending', 'legacy', ['title' => 'string', 'body' => 'html'], ['minimal'], false],
         ];
 
-        foreach ($types as $index => [$name, $slug, $category, $fields, $variants]) {
+        foreach ($types as $index => [$name, $slug, $category, $fields, $variants, $isActive]) {
             SectionType::query()->updateOrCreate(
                 ['slug' => $slug],
                 [
@@ -48,7 +48,7 @@ class SectionTypeSeeder extends Seeder
                         'label' => str($variant)->replace('_', ' ')->title()->toString(),
                     ])->all(),
                     'supported_templates' => null,
-                    'is_active' => true,
+                    'is_active' => $isActive,
                     'sort_order' => $index + 1,
                 ],
             );

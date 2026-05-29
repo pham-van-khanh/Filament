@@ -50,11 +50,14 @@
             @endif
             <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/58"></div>
             @if($post->category)
-              <span class="absolute left-4 top-4 rounded-full bg-white/65 px-3 py-1 text-xs font-semibold backdrop-blur" style="color: {{ $post->category->color ?? '#2563eb' }}">□ {{ $post->category->name }}</span>
+              <span class="absolute left-4 top-4 inline-flex items-center gap-1 rounded-full bg-white/65 px-3 py-1 text-xs font-semibold backdrop-blur" style="color: {{ $post->category->color ?? '#2563eb' }}">
+                <x-ui-icon name="tag" class="h-3 w-3" />
+                {{ $post->category->name }}
+              </span>
             @endif
             <div class="absolute inset-x-0 bottom-0 p-4 text-white">
               <h2 class="text-lg font-bold leading-tight">{{ $post->title }}</h2>
-              <p class="mt-1 text-sm text-white/80">{{ data_get($post->settings, 'date_range') ?: optional($post->memory_date)->format('d/m/Y') }}</p>
+              <p class="mt-1 text-sm text-white/80">{{ $post->date_range ?: optional($post->memory_date)->format('d/m/Y') }}</p>
             </div>
           </a>
         @endforeach
@@ -77,12 +80,12 @@
             </div>
             <div class="min-w-0">
               <h3 class="truncate text-lg font-semibold text-neutral-950">{{ $post->title }}</h3>
-              <p class="mt-1 text-sm text-neutral-600">{{ data_get($post->settings, 'date_range') ?: optional($post->memory_date)->format('d/m/Y') }} · {{ $post->media_count ?: 0 }} anh</p>
+              <p class="mt-1 text-sm text-neutral-600">{{ $post->date_range ?: optional($post->memory_date)->format('d/m/Y') }} · {{ $post->media_count ?: 0 }} anh</p>
               @if($post->category)
                 <span class="mt-2 inline-flex rounded-full bg-[#e4f2ff] px-3 py-1 text-xs font-semibold" style="color: {{ $post->category->color ?? '#2563eb' }}">{{ $post->category->name }}</span>
               @endif
             </div>
-            <span class="text-neutral-400">□</span>
+            <x-ui-icon name="chevron-right" class="h-5 w-5 text-neutral-400" />
           </a>
         @endforeach
       </div>

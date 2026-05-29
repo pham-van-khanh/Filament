@@ -11,7 +11,7 @@ class ArchiveController
     {
         $groups = Post::query()
             ->visibleToPublic()
-            ->with('category')
+            ->with(['detail', 'category'])
             ->latest('memory_date')
             ->get()
             ->groupBy(fn (Post $post) => $post->memory_date?->format('Y') ?? 'Unknown');

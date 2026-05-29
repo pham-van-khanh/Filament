@@ -11,7 +11,7 @@ class PreviewPostController
 {
     public function __invoke(Post $post, TemplateResolver $templates, MediaCollector $media): View
     {
-        $post->load(['template', 'coverMedia', 'category', 'tags', 'visibleSections.sectionType']);
+        $post->load(['detail', 'template', 'coverMedia', 'category', 'tags', 'visibleSections.sectionType', 'visibleSections.items']);
 
         return view('frontend.posts.show', [
             'post' => $post,

@@ -12,7 +12,7 @@ class DesignTokenMerger
         return array_replace_recursive(
             $post->template?->design_tokens['section_defaults'] ?? [],
             $section->sectionType?->default_style_schema ?? [],
-            $section->style ?? [],
+            $section->render_style,
         );
     }
 

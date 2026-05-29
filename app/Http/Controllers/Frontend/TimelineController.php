@@ -11,7 +11,7 @@ class TimelineController
     {
         $groups = Post::query()
             ->visibleToPublic()
-            ->with(['coverMedia', 'category'])
+            ->with(['detail', 'coverMedia', 'category'])
             ->whereNotNull('memory_date')
             ->latest('memory_date')
             ->take(120)

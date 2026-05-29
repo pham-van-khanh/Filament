@@ -47,9 +47,5 @@ class SectionType extends Model
         return $this->hasMany(PostSection::class);
     }
 
-    public function presets(): HasMany
-    {
-        return $this->hasMany(SectionPreset::class);
-    }
 }
 

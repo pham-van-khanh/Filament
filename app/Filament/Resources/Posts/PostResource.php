@@ -8,21 +8,17 @@ use App\Filament\Resources\Posts\Pages\CreatePost;
 use App\Filament\Resources\Posts\Pages\EditPost;
 use App\Filament\Resources\Posts\Pages\ListPosts;
 use App\Models\Post;
-use App\Models\SectionType;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
@@ -59,59 +55,12 @@ class PostResource extends Resource
                     TextInput::make('title')->required()->maxLength(180)->columnSpan(1),
                     TextInput::make('slug')->required()->unique(ignoreRecord: true)->maxLength(200)->columnSpan(1),
                     Textarea::make('excerpt')->rows(3)->columnSpanFull(),
-                    RichEditor::make('content')->columnSpanFull(),
                     Select::make('template_id')->relationship('template', 'name')->searchable()->preload()->required(),
                     Select::make('category_id')->relationship('category', 'name')->searchable()->preload(),
                     Select::make('tags')->relationship('tags', 'name')->multiple()->preload(),
                     Select::make('cover_media_id')->relationship('coverMedia', 'original_name')->searchable()->preload(),
                     DatePicker::make('memory_date'),
-                    Select::make('memory_date_precision')->options([
-                        'day' => 'Day',
-                        'month' => 'Month',
-                        'year' => 'Year',
-                    ])->default('day'),
                     TextInput::make('location_name')->maxLength(255),
-                    TextInput::make('mood')->maxLength(80),
-                ]),
-
-            Section::make('Sections builder')
-                ->description('Add flexible sections. Data and style are JSON objects in this MVP; the schema is driven by Section Type records.')
-                ->components([
-                    Repeater::make('sections')
-                        ->relationship('sections')
-                        ->orderColumn('sort_order')
-                        ->reorderable()
-                        ->collapsible()
-                        ->cloneable()
-                        ->itemLabel(fn (array $state): ?string => ($state['title'] ?? null) ?: str($state['type'] ?? 'Section')->headline()->toString())
-                        ->schema([
-                            Grid::make(3)->components([
-                                Select::make('type')
-                                    ->label('Section type')
-                                    ->options(fn () => SectionType::query()->where('is_active', true)->orderBy('sort_order')->pluck('name', 'slug'))
-                                    ->required()
-                                    ->searchable(),
-                                TextInput::make('variant')->placeholder('cinematic_carousel'),
-                                Toggle::make('is_visible')->default(true),
-                            ]),
-                            TextInput::make('title')->maxLength(255),
-                            TextInput::make('subtitle')->maxLength(255),
-                            Textarea::make('data')
-                                ->rows(8)
-                                ->formatStateUsing(fn ($state) => static::jsonForForm($state ?: []))
-                                ->dehydrateStateUsing(fn ($state) => static::jsonFromForm($state, []))
-                                ->columnSpanFull(),
-                            Textarea::make('style')
-                                ->rows(4)
-                                ->formatStateUsing(fn ($state) => static::jsonForForm($state ?: []))
-                                ->dehydrateStateUsing(fn ($state) => static::jsonFromForm($state, []))
-                                ->columnSpanFull(),
-                            Textarea::make('settings')
-                                ->rows(3)
-                                ->formatStateUsing(fn ($state) => static::jsonForForm($state ?: []))
-                                ->dehydrateStateUsing(fn ($state) => static::jsonFromForm($state, []))
-                                ->columnSpanFull(),
-                        ]),
                 ]),
 
             Section::make('Visibility and SEO')
@@ -128,15 +77,8 @@ class PostResource extends Resource
                     TextInput::make('password')->password()->revealable()->dehydrated(fn ($state) => filled($state)),
                     DateTimePicker::make('published_at'),
                     Toggle::make('is_featured')->default(false),
-                    TextInput::make('sort_order')->numeric()->default(0),
                     TextInput::make('seo_title')->maxLength(180)->columnSpanFull(),
                     Textarea::make('seo_description')->rows(3)->maxLength(300)->columnSpanFull(),
-                    Select::make('og_media_id')->relationship('ogMedia', 'original_name')->searchable()->preload(),
-                    Textarea::make('settings')
-                        ->rows(4)
-                        ->formatStateUsing(fn ($state) => static::jsonForForm($state ?: []))
-                        ->dehydrateStateUsing(fn ($state) => static::jsonFromForm($state, []))
-                        ->columnSpanFull(),
                 ]),
         ]);
     }
@@ -203,25 +145,5 @@ class PostResource extends Resource
             'create' => CreatePost::route('/create'),
             'edit' => EditPost::route('/{record}/edit'),
         ];
-    }
-
-    protected static function jsonForForm(mixed $state): string
-    {
-        if (is_string($state)) {
-            return $state;
-        }
-
-        return json_encode($state ?: [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    }
-
-    protected static function jsonFromForm(mixed $state, array $fallback): array
-    {
-        if (is_array($state)) {
-            return $state;
-        }
-
-        $decoded = json_decode((string) $state, true);
-
-        return is_array($decoded) ? $decoded : $fallback;
     }
 }

@@ -14,7 +14,7 @@ class SearchController
 
         $posts = Post::query()
             ->visibleToPublic()
-            ->with(['coverMedia', 'category', 'template'])
+            ->with(['detail', 'coverMedia', 'category', 'template'])
             ->search($term)
             ->latest('published_at')
             ->paginate(12)

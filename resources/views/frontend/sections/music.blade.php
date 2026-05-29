@@ -1,5 +1,4 @@
 @php
-  $data = $section->data ?? [];
   $enabled = $data['enabled'] ?? true;
   $autoplay = $data['autoplay'] ?? true;
   $loop = $data['loop'] ?? true;

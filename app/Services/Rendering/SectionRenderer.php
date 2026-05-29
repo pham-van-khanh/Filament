@@ -15,6 +15,8 @@ class SectionRenderer
 
     public function render(PostSection $section, Post $post, ?Collection $mediaById = null): string
     {
+        $section->setRelation('post', $post);
+
         $type = str_replace('_', '-', $section->component_type);
 
         $variant = $section->component_variant
@@ -32,7 +34,7 @@ class SectionRenderer
         return view($view, [
             'post' => $post,
             'section' => $section,
-            'data' => $section->data ?? [],
+            'data' => $section->render_data,
             'style' => $this->tokens->sectionStyle($post, $section),
             'tokens' => $post->template?->design_tokens ?? [],
             'mediaById' => $mediaById ?? collect(),

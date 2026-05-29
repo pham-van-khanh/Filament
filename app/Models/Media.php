@@ -67,7 +67,7 @@ class Media extends Model
     public function posts(): BelongsToMany
     {
         return $this->belongsToMany(Post::class, 'post_media')
-            ->withPivot(['role', 'sort_order', 'metadata'])
+            ->withPivot(['role', 'sort_order'])
             ->withTimestamps();
     }
 

@@ -11,7 +11,7 @@ class TagController
     {
         $posts = $tag->posts()
             ->visibleToPublic()
-            ->with(['coverMedia', 'category', 'template'])
+            ->with(['detail', 'coverMedia', 'category', 'template'])
             ->latest('memory_date')
             ->paginate(12);
 

@@ -81,11 +81,9 @@ class TemplateSeeder extends Seeder
                         'quote',
                         'gallery_grid',
                         'single_image',
-                        'rich_text',
                         'video_embed',
-                        'timeline',
                         'music',
-                        'ending',
+                        'timeline',
                     ],
                     'settings' => [
                         'editor_group' => str_contains($category, 'du lich') ? 'travel' : 'other',

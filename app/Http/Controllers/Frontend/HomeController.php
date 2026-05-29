@@ -13,7 +13,7 @@ class HomeController
         $featured = Post::query()
             ->visibleToPublic()
             ->featured()
-            ->with(['coverMedia', 'category', 'template'])
+            ->with(['detail', 'coverMedia', 'category', 'template'])
             ->withCount('media')
             ->latest('published_at')
             ->take(6)
@@ -21,7 +21,7 @@ class HomeController
 
         $latest = Post::query()
             ->visibleToPublic()
-            ->with(['coverMedia', 'category', 'template'])
+            ->with(['detail', 'coverMedia', 'category', 'template'])
             ->withCount('media')
             ->latest('published_at')
             ->take(9)

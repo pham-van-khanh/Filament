@@ -16,7 +16,7 @@ class UnlistedMemoryController extends Controller
 
         $this->authorize('view', $post);
 
-        $post->load(['template', 'coverMedia', 'category', 'tags', 'visibleSections.sectionType']);
+        $post->load(['detail', 'template', 'coverMedia', 'category', 'tags', 'visibleSections.sectionType', 'visibleSections.items']);
 
         return view('frontend.posts.show', [
             'post' => $post,

@@ -36,23 +36,23 @@
     @yield('content')
   </main>
 
-  <nav class="fixed inset-x-0 bottom-0 z-50 border-t border-black/10 bg-white/92 px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl md:hidden">
+  <nav data-bottom-navigation class="fixed inset-x-0 bottom-0 z-50 border-t border-black/10 bg-white/95 px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl md:hidden">
     <div class="mx-auto grid max-w-md grid-cols-4 text-center text-[12px] font-medium text-neutral-500">
-      <a href="{{ route('home') }}" class="rounded-2xl px-2 py-2 {{ request()->routeIs('home') ? 'text-[#e34d86]' : '' }}">
-        <span class="mx-auto mb-1 block h-5 w-5 rounded-md border {{ request()->routeIs('home') ? 'border-[#e34d86] bg-[#fde7f0]' : 'border-neutral-400' }}"></span>
-        Trang chu
+      <a href="{{ route('home') }}" class="flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-lg px-1 py-1.5 {{ request()->routeIs('home') ? 'bg-[#fff3f8] text-[#e34d86]' : '' }}">
+        <svg aria-hidden="true" class="h-[22px] w-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="m3 10.75 9-7.25 9 7.25"/><path stroke-linecap="round" stroke-linejoin="round" d="M5.5 9.5v10.25h13V9.5"/><path stroke-linecap="round" stroke-linejoin="round" d="M9.5 19.75v-6h5v6"/></svg>
+        Trang chủ
       </a>
-      <a href="{{ route('memories.index') }}" class="rounded-2xl px-2 py-2 {{ request()->routeIs('memories.*') ? 'text-[#e34d86]' : '' }}">
-        <span class="mx-auto mb-1 block h-5 w-5 rounded-md border {{ request()->routeIs('memories.*') ? 'border-[#e34d86] bg-[#fde7f0]' : 'border-neutral-400' }}"></span>
-        Bo suu tap
+      <a href="{{ route('memories.index') }}" class="flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-lg px-1 py-1.5 {{ request()->routeIs('memories.*') ? 'bg-[#fff3f8] text-[#e34d86]' : '' }}">
+        <svg aria-hidden="true" class="h-[22px] w-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="4" width="17" height="16" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="m6.5 16 4.2-4.5 3.1 3 2.1-2.1 2.6 3.6"/><circle cx="15.75" cy="8.5" r="1.25"/></svg>
+        Bộ sưu tập
       </a>
-      <a href="{{ route('map.index') }}" class="rounded-2xl px-2 py-2 {{ request()->routeIs('map.*') ? 'text-[#e34d86]' : '' }}">
-        <span class="mx-auto mb-1 block h-5 w-5 rounded-md border {{ request()->routeIs('map.*') ? 'border-[#e34d86] bg-[#fde7f0]' : 'border-neutral-400' }}"></span>
-        Ban do
+      <a href="{{ route('map.index') }}" class="flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-lg px-1 py-1.5 {{ request()->routeIs('map.*') ? 'bg-[#fff3f8] text-[#e34d86]' : '' }}">
+        <svg aria-hidden="true" class="h-[22px] w-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s6.25-5.45 6.25-11A6.25 6.25 0 0 0 5.75 10c0 5.55 6.25 11 6.25 11Z"/><circle cx="12" cy="10" r="2.2"/></svg>
+        Bản đồ
       </a>
-      <a href="{{ route('timeline.index') }}" class="rounded-2xl px-2 py-2 {{ request()->routeIs('timeline.*') ? 'text-[#e34d86]' : '' }}">
-        <span class="mx-auto mb-1 block h-5 w-5 rounded-md border {{ request()->routeIs('timeline.*') ? 'border-[#e34d86] bg-[#fde7f0]' : 'border-neutral-400' }}"></span>
-        Dong thoi gian
+      <a href="{{ route('timeline.index') }}" class="flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-lg px-1 py-1.5 {{ request()->routeIs('timeline.*') ? 'bg-[#fff3f8] text-[#e34d86]' : '' }}">
+        <svg aria-hidden="true" class="h-[22px] w-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5v5l3.25 2"/></svg>
+        Dòng thời gian
       </a>
     </div>
   </nav>

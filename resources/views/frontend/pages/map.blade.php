@@ -10,7 +10,9 @@
       <div class="mt-8 overflow-hidden rounded-[24px] bg-white shadow-sm ring-1 ring-black/5">
         <div class="grid min-h-[420px] place-items-center bg-[linear-gradient(135deg,#e4f2ff,#fce8f0,#dff2d8)] p-8 text-center">
           <div>
-            <div class="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-full bg-white/75 text-[#812744] shadow">□</div>
+            <div class="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-full bg-white/75 text-[#812744] shadow">
+              <x-ui-icon name="map-pin" class="h-8 w-8" />
+            </div>
             <h2 class="text-2xl font-semibold">Sap co ban do dia diem</h2>
             <p class="mt-2 max-w-md text-neutral-600">Cac memory da co location se duoc gan toa do de xem lai hanh trinh cua hai dua.</p>
           </div>

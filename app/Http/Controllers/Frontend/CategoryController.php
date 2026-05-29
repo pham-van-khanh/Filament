@@ -11,7 +11,7 @@ class CategoryController
     {
         $posts = $category->posts()
             ->visibleToPublic()
-            ->with(['coverMedia', 'template', 'tags'])
+            ->with(['detail', 'coverMedia', 'template', 'tags'])
             ->latest('memory_date')
             ->paginate(12);
 

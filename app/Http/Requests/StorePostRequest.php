@@ -30,8 +30,6 @@ class StorePostRequest extends FormRequest
             'sections' => ['nullable', 'array'],
             'sections.*.type' => ['required_with:sections', 'string', 'exists:section_types,slug'],
             'sections.*.variant' => ['nullable', 'string', 'max:120'],
-            'sections.*.data' => ['required_with:sections', 'array'],
-            'sections.*.style' => ['nullable', 'array'],
         ];
     }
 }

@@ -25,148 +25,67 @@ class DemoContentSeeder extends Seeder
             ->where('email', 'admin@chuaminh.vn')
             ->firstOrFail();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Category
-        |--------------------------------------------------------------------------
-        */
-
         $category = Category::query()->updateOrCreate(
             ['slug' => 'du-lich'],
             [
-                'name' => 'Du lich',
-                'description' => 'Nhom ky niem du lich, yeu thuong va nhung chuyen di.',
+                'name' => 'Du lịch',
+                'description' => 'Những chuyến đi được lưu lại bằng hình ảnh.',
                 'color' => '#0F4C81',
                 'sort_order' => 1,
             ],
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Tags
-        |--------------------------------------------------------------------------
-        */
-
         $tags = collect([
             ['sapa', 'Sapa', '#0F4C81'],
-            ['lao-cai', 'Lao Cai', '#0F4C81'],
+            ['lao-cai', 'Lào Cai', '#0F4C81'],
             ['fansipan', 'Fansipan', '#0F4C81'],
-            ['ky-niem', 'Ky niem', '#D95B8A'],
-            ['chung-minh', 'Chung minh', '#D95B8A'],
+            ['ky-niem', 'Kỷ niệm', '#D95B8A'],
+            ['chung-minh', 'Chúng mình', '#D95B8A'],
         ])->map(function (array $item) {
             [$slug, $name, $color] = $item;
 
             return Tag::query()->updateOrCreate(
                 ['slug' => $slug],
-                [
-                    'name' => $name,
-                    'color' => $color,
-                ],
+                ['name' => $name, 'color' => $color],
             );
         });
 
-        /*
-        |--------------------------------------------------------------------------
-        | Media demo
-        |--------------------------------------------------------------------------
-        | Dung URL truc tiep de seed nhanh.
-        | Sau nay co the thay bang file upload trong storage/app/public.
-        */
-
+        // Demo media uses remote images; newly created video blocks accept uploaded files.
         $media = collect([
-            [
-                'filename' => 'memory-hero.jpg',
-                'url' => 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=85',
-                'alt' => 'Thung lung trong suong som',
-                'caption' => 'Buoi sang dau tien chung minh thuc day giua nui va may.',
-                'width' => 1800,
-                'height' => 1200,
-            ],
-            [
-                'filename' => 'memory-rice.jpg',
-                'url' => 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=85',
-                'alt' => 'Ruong bac thang luc hoang hon',
-                'caption' => 'Anh hoang hon vang tren nhung thua ruong bac thang.',
-                'width' => 1600,
-                'height' => 1100,
-            ],
-            [
-                'filename' => 'memory-fog.jpg',
-                'url' => 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1600&q=85',
-                'alt' => 'Con duong mo suong',
-                'caption' => 'Mot con duong nho, mot lop suong mong va hai dua minh.',
-                'width' => 1600,
-                'height' => 1100,
-            ],
-            [
-                'filename' => 'memory-couple-note.jpg',
-                'url' => 'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=1600&q=85',
-                'alt' => 'Hoa va loi nhan',
-                'caption' => 'Mot loi nhan nho gui lai cho ngay hom do.',
-                'width' => 1600,
-                'height' => 1100,
-            ],
-            [
-                'filename' => 'memory-city.jpg',
-                'url' => 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1600&q=85',
-                'alt' => 'Pho co trong mua',
-                'caption' => 'Anh den long va con pho sau mua.',
-                'width' => 1600,
-                'height' => 1100,
-            ],
-            [
-                'filename' => 'memory-sakura.jpg',
-                'url' => 'https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=1600&q=85',
-                'alt' => 'Hoa anh dao',
-                'caption' => 'Mot mua hoa nhe nhu loi hua.',
-                'width' => 1600,
-                'height' => 1100,
-            ],
+            ['memory-hero.jpg', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=85', 'Thung lũng trong sương sớm', 'Buổi sáng đầu tiên giữa núi và mây.', 1800, 1200],
+            ['memory-rice.jpg', 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=85', 'Ruộng bậc thang lúc hoàng hôn', 'Nắng rơi chậm trên những thửa ruộng bậc thang.', 1600, 1100],
+            ['memory-fog.jpg', 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1600&q=85', 'Con đường mờ sương', 'Một con đường nhỏ, một lớp sương mỏng.', 1600, 1100],
+            ['memory-note.jpg', 'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=1600&q=85', 'Hoa và lời nhắn', 'Một lời nhắn nhỏ gửi lại cho ngày hôm đó.', 1600, 1100],
+            ['memory-city.jpg', 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1600&q=85', 'Phố nhỏ sau mưa', 'Ánh đèn và con phố sau mưa.', 1600, 1100],
+            ['memory-sakura.jpg', 'https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=1600&q=85', 'Mùa hoa', 'Một mùa hoa nhẹ như lời hứa.', 1600, 1100],
+            ['memory-lake.jpg', 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1600&q=85', 'Mặt hồ bình yên', 'Bình yên nằm lại bên mặt nước.', 1600, 1100],
+            ['memory-trail.jpg', 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=85', 'Đường lên núi', 'Con dốc dẫn tới vùng trời rộng hơn.', 1600, 1100],
         ])->mapWithKeys(function (array $item) use ($admin): array {
+            [$filename, $url, $alt, $caption, $width, $height] = $item;
+
             $record = Media::query()->updateOrCreate(
-                ['filename' => $item['filename']],
+                ['filename' => $filename],
                 [
                     'user_id' => $admin->id,
                     'disk' => 'public',
                     'type' => MediaType::Image,
                     'mime_type' => 'image/jpeg',
-                    'original_name' => $item['filename'],
-                    'path' => 'seed/'.$item['filename'],
-                    'url' => $item['url'],
-                    'alt' => $item['alt'],
-                    'caption' => $item['caption'],
-                    'width' => $item['width'],
-                    'height' => $item['height'],
+                    'original_name' => $filename,
+                    'path' => 'seed/'.$filename,
+                    'url' => $url,
+                    'alt' => $alt,
+                    'caption' => $caption,
+                    'width' => $width,
+                    'height' => $height,
                     'size' => 0,
-                    'metadata' => [
-                        'source' => 'unsplash-demo-url',
-                    ],
                 ],
             );
 
-            return [$item['filename'] => $record];
+            return [$filename => $record];
         });
 
         $cover = $media['memory-hero.jpg'];
-
-        /*
-        |--------------------------------------------------------------------------
-        | Template
-        |--------------------------------------------------------------------------
-        | TemplateSeeder hien dang co slug mountain-forest, beach-sun,
-        | city-night, nature-green, romantic-love, wedding-special,
-        | birthday-pastel, daily-polaroid.
-        */
-
-        $template = Template::query()
-            ->where('slug', 'mountain-forest')
-            ->firstOrFail();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Post
-        |--------------------------------------------------------------------------
-        */
+        $template = Template::query()->where('slug', 'mountain-forest')->firstOrFail();
 
         $post = Post::query()->updateOrCreate(
             ['slug' => 'mot-ngay-chung-minh-o-giua-may-troi'],
@@ -175,75 +94,50 @@ class DemoContentSeeder extends Seeder
                 'template_id' => $template->id,
                 'category_id' => $category->id,
                 'title' => 'Một ngày chúng mình ở giữa mây trời',
-                'excerpt' => 'Một bài viết demo đầy đủ section: hero, stats, rich text, ảnh đơn, ảnh kèm chữ, quote, gallery, slider, video, timeline, music và ending.',
-                'content' => 'Có những chuyến đi không cần quá dài, chỉ cần đủ ảnh, đủ cảm xúc và đủ một người để cùng nhớ lại.',
+                'excerpt' => 'Một album ảnh về Sapa, với nhiều cách xếp ảnh để những khoảnh khắc được kể bằng hình.',
                 'cover_media_id' => $cover->id,
                 'status' => PostStatus::Published,
                 'visibility' => PostVisibility::Public,
                 'published_at' => now(),
                 'memory_date' => '2025-09-22',
-                'memory_date_precision' => 'day',
-                'location_name' => 'Sapa, Lao Cai',
-                'mood' => 'nui va suong',
+                'location_name' => 'Sapa, Lào Cai',
+                'mood' => 'núi và sương',
                 'is_featured' => true,
                 'seo_title' => 'Một ngày chúng mình ở giữa mây trời | chuaminh.vn',
-                'seo_description' => 'Bài demo đầy đủ tất cả section cho website lưu giữ kỷ niệm.',
+                'seo_description' => 'Album ảnh lưu lại chuyến đi giữa núi, mây và những ngày thật yên.',
                 'og_media_id' => $cover->id,
-                'settings' => [
-                    'date_range' => '22 - 25 tháng 9, 2025',
-                    'theme_note' => 'Demo full sections',
-                    'music' => [
-                        'enabled' => true,
-                        'autoplay' => true,
-                        'loop' => true,
-                        'title' => 'Our Memory Song',
-                        'artist' => 'chuaminh.vn',
-                        'url' => asset('demo/music/our-song.mp3'),
-                        'src' => asset('demo/music/our-song.mp3'),
-                    ],
-                ],
             ],
         );
 
-        $post->tags()->sync($tags->pluck('id')->all());
+        $post->detail()->updateOrCreate([], [
+            'date_range' => '22 - 25 tháng 9, 2025',
+            'music_enabled' => false,
+            'music_url' => null,
+            'music_title' => null,
+            'music_artist' => null,
+        ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Post media gallery
-        |--------------------------------------------------------------------------
-        */
+        $post->tags()->sync($tags->pluck('id')->all());
 
         $galleryMedia = collect([
             $media['memory-hero.jpg'],
             $media['memory-rice.jpg'],
             $media['memory-fog.jpg'],
-            $media['memory-couple-note.jpg'],
+            $media['memory-note.jpg'],
             $media['memory-city.jpg'],
             $media['memory-sakura.jpg'],
+            $media['memory-lake.jpg'],
+            $media['memory-trail.jpg'],
         ]);
 
         $post->media()->sync(
-            $galleryMedia->mapWithKeys(function (Media $item, int $index) {
-                return [
-                    $item->id => [
-                        'role' => $index === 0 ? 'cover' : 'gallery',
-                        'sort_order' => $index + 1,
-                        'metadata' => json_encode([
-                            'caption' => $item->caption,
-                        ]),
-                    ],
-                ];
-            })->all(),
+            $galleryMedia->mapWithKeys(fn (Media $item, int $index): array => [
+                $item->id => [
+                    'role' => $index === 0 ? 'cover' : 'gallery',
+                    'sort_order' => $index + 1,
+                ],
+            ])->all(),
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Sections
-        |--------------------------------------------------------------------------
-        | Day la bai post co tat ca section trong SectionTypeSeeder:
-        | hero_image, stats, rich_text, single_image, image_text, quote,
-        | gallery_grid, gallery_slider, video_embed, music, timeline, ending.
-        */
 
         $sectionTypes = SectionType::query()->pluck('id', 'slug');
 
@@ -252,303 +146,143 @@ class DemoContentSeeder extends Seeder
         $sections = [
             [
                 'type' => 'hero_image',
-                'title' => 'Hero mở đầu',
+                'title' => 'Ảnh mở đầu',
                 'variant' => 'memory_header',
-                'data' => [
-                    'media_id' => $cover->id,
-                    'headline' => 'Một ngày chúng mình ở giữa mây trời',
-                    'subheadline' => 'Có những chuyến đi chỉ cần nhìn lại ảnh thôi là thấy tim mình mềm đi một chút.',
-                    'date_range' => '22 - 25 tháng 9, 2025',
-                    'location' => 'Sapa, Lao Cai',
-                    'tags' => ['Sapa', 'Lao Cai', 'Kỷ niệm', 'Chúng mình'],
-                    'cta_label' => 'Xem kỷ niệm',
-                    'scroll_hint' => 'Kéo xuống để xem tiếp',
-                ],
-                'style' => [
-                    '--section-height' => '640px',
-                    '--overlay-opacity' => '0.45',
-                ],
-                'settings' => [
-                    'lightbox' => true,
-                    'full_bleed' => true,
-                ],
+                'media_id' => $cover->id,
+                'headline' => 'Một ngày chúng mình ở giữa mây trời',
+                'caption' => '22 - 25 tháng 9, 2025 · Sapa, Lào Cai',
+                'height' => '540px',
             ],
             [
                 'type' => 'stats',
                 'title' => 'Những con số nhỏ',
                 'variant' => 'mobile_row',
-                'data' => [
-                    'items' => [
-                        ['4', 'Ngày bên nhau'],
-                        ['6', 'Khoảnh khắc chính'],
-                        ['128', 'Tấm ảnh'],
-                        ['16°', 'Trời se lạnh'],
-                    ],
+                'items' => [
+                    ['value' => '4', 'label' => 'Ngày bên nhau'],
+                    ['value' => '18', 'label' => 'Ảnh chụp'],
+                    ['value' => '3', 'label' => 'Địa điểm'],
+                    ['value' => '16°C', 'label' => 'Thời tiết'],
                 ],
-                'style' => [],
-                'settings' => [],
             ],
             [
-                'type' => 'rich_text',
-                'title' => 'Lời mở đầu',
-                'variant' => 'prose',
-                'data' => [
-                    'html' => '
-                        <h2>Chuyến đi bắt đầu từ một buổi sáng rất nhẹ</h2>
-                        <p>Chúng mình rời thành phố khi trời còn chưa sáng hẳn. Không có kế hoạch quá lớn, chỉ là vài bộ đồ ấm, một chiếc máy ảnh, một playlist quen thuộc và mong muốn được cùng nhau đi đâu đó thật xa.</p>
-                        <p>Có những ngày không cần quá nhiều lời. Chỉ cần ngồi cạnh nhau, nhìn mây trôi qua cửa kính, rồi thỉnh thoảng quay sang cười vì biết người kia cũng đang thấy yên bình giống mình.</p>
-                    ',
-                ],
-                'style' => [
-                    '--prose-width' => '720px',
-                ],
-                'settings' => [],
+                'type' => 'gallery_grid',
+                'title' => 'Gallery mosaic',
+                'variant' => 'mosaic',
+                'layout' => 'mosaic',
+                'items' => $galleryMedia->map(fn (Media $item): array => [
+                    'media_id' => $item->id,
+                    'caption' => $item->caption,
+                ])->values()->all(),
+            ],
+            [
+                'type' => 'gallery_grid',
+                'title' => 'Những khung hình như postcard',
+                'variant' => 'polaroid',
+                'layout' => 'polaroid',
+                'items' => $galleryMedia->slice(2, 6)->map(fn (Media $item): array => [
+                    'media_id' => $item->id,
+                    'caption' => $item->caption,
+                ])->values()->all(),
+            ],
+            [
+                'type' => 'gallery_slider',
+                'title' => 'Lướt qua từng khoảnh khắc',
+                'variant' => 'featured_moments',
+                'layout' => 'featured_moments',
+                'height' => '360px',
+                'autoplay' => true,
+                'items' => $galleryMedia->map(fn (Media $item): array => [
+                    'media_id' => $item->id,
+                    'caption' => $item->caption,
+                ])->values()->all(),
             ],
             [
                 'type' => 'single_image',
-                'title' => 'Ảnh đơn nổi bật',
+                'title' => 'Tấm ảnh muốn giữ thật lâu',
                 'variant' => 'framed',
-                'data' => [
-                    'media_id' => $media['memory-rice.jpg']->id,
-                    'caption' => 'Chiều hôm đó, nắng rơi xuống rất chậm trên những thửa ruộng bậc thang.',
-                    'alt' => $media['memory-rice.jpg']->alt,
-                ],
-                'style' => [
-                    '--image-radius' => '24px',
-                ],
-                'settings' => [
-                    'lightbox' => true,
-                ],
+                'media_id' => $media['memory-rice.jpg']->id,
+                'caption' => 'Chiều hôm đó, nắng rơi xuống rất chậm trên những thửa ruộng bậc thang.',
             ],
             [
-                'type' => 'image_text',
-                'title' => 'Ảnh và câu chuyện',
-                'variant' => 'image_left_text_right',
-                'data' => [
-                    'media_id' => $media['memory-fog.jpg']->id,
-                    'eyebrow' => 'Ngày thứ hai',
-                    'heading' => 'Con đường nhỏ trong sương',
-                    'body' => '
-                        <p>Sáng hôm ấy sương phủ kín cả con đường. Hai đứa đi chậm hơn bình thường, không phải vì mệt, mà vì cảnh trước mắt đẹp đến mức không nỡ đi nhanh.</p>
-                        <p>Có một đoạn em dừng lại rất lâu chỉ để nhìn mây trôi qua sườn núi. Anh đứng phía sau chụp một tấm ảnh, không gọi em quay lại, vì khoảnh khắc đó tự nhiên quá.</p>
-                    ',
-                    'caption' => 'Một đoạn đường nhỏ nhưng là một trong những đoạn nhớ nhất.',
-                ],
-                'style' => [
-                    '--section-gap' => '32px',
-                ],
-                'settings' => [
-                    'lightbox' => true,
+                'type' => 'timeline',
+                'title' => 'Hành trình của chúng mình',
+                'variant' => 'vertical',
+                'items' => [
+                    [
+                        'time_label' => 'Ngày 1 · 06:00',
+                        'title' => 'Bắt đầu chuyến đi',
+                        'body' => 'Rời thành phố khi trời còn dịu, mang theo máy ảnh và một playlist quen.',
+                        'media_id' => $media['memory-hero.jpg']->id,
+                    ],
+                    [
+                        'time_label' => 'Ngày 2 · 17:30',
+                        'title' => 'Hoàng hôn trên núi',
+                        'body' => 'Nắng xuống chậm trên ruộng bậc thang, đủ lâu để mình đứng lại ngắm nhìn.',
+                        'media_id' => $media['memory-rice.jpg']->id,
+                    ],
+                    [
+                        'time_label' => 'Ngày 3 · 08:15',
+                        'title' => 'Đi qua màn sương',
+                        'body' => 'Con đường nhỏ trong sương trở thành một trong những tấm ảnh muốn giữ nhất.',
+                        'media_id' => $media['memory-fog.jpg']->id,
+                    ],
                 ],
             ],
             [
                 'type' => 'quote',
-                'title' => 'Một câu mình muốn giữ lại',
-                'variant' => 'large_center',
-                'data' => [
-                    'quote' => 'Sau này nếu có mệt, mình lại mở những tấm ảnh này ra, để nhớ rằng đã từng có những ngày chúng mình bình yên đến thế.',
-                    'author' => 'Khanh · 23/09/2025',
-                ],
-                'style' => [],
-                'settings' => [],
-            ],
-            [
-                'type' => 'gallery_grid',
-                'title' => 'Gallery dạng lưới',
-                'variant' => 'mosaic',
-                'data' => [
-                    'heading' => 'Những mảnh ghép của chuyến đi',
-                    'description' => 'Một vài bức ảnh nhỏ ghép lại thành ký ức lớn.',
-                    'media_ids' => $galleryMedia->pluck('id')->values()->all(),
-                    'items' => $galleryMedia->map(function (Media $item) {
-                        return [
-                            'media_id' => $item->id,
-                            'caption' => $item->caption,
-                            'alt' => $item->alt,
-                        ];
-                    })->values()->all(),
-                    'more_count' => 122,
-                ],
-                'style' => [],
-                'settings' => [
-                    'lightbox' => true,
-                ],
-            ],
-            [
-                'type' => 'gallery_slider',
-                'title' => 'Gallery dạng slider',
-                'variant' => 'featured_moments',
-                'data' => [
-                    'heading' => 'Khoảnh khắc nổi bật',
-                    'description' => 'Vuốt nhẹ để xem lại từng lát cắt của chuyến đi.',
-                    'autoplay' => true,
-                    'interval' => 3500,
-                    'slides' => $galleryMedia->map(function (Media $item) {
-                        return [
-                            'media_id' => $item->id,
-                            'caption' => $item->caption,
-                            'alt' => $item->alt,
-                        ];
-                    })->values()->all(),
-                ],
-                'style' => [
-                    '--section-height' => '360px',
-                ],
-                'settings' => [
-                    'lightbox' => true,
-                    'show_dots' => true,
-                    'show_arrows' => true,
-                ],
-            ],
-            [
-                'type' => 'video_embed',
-                'title' => 'Video kỷ niệm',
-                'variant' => 'cinematic_frame',
-                'data' => [
-                    'url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-                    'embed_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-                    'caption' => 'Một đoạn video ngắn để test layout video embed.',
-                    'heading' => 'Một đoạn phim nhỏ',
-                    'description' => 'Video này chỉ là demo. Khi dùng thật, bạn thay bằng link YouTube hoặc video của chính bạn.',
-                ],
-                'style' => [
-                    '--video-radius' => '24px',
-                ],
-                'settings' => [],
-            ],
-            [
-                'type' => 'timeline',
-                'title' => 'Timeline chuyến đi',
-                'variant' => 'image_cards',
-                'data' => [
-                    'heading' => 'Lịch trình của chúng mình',
-                    'items' => [
-                        [
-                            'time' => 'Ngày 1 · 06:00',
-                            'title' => 'Rời thành phố',
-                            'body' => 'Hai đứa bắt đầu chuyến đi khi trời còn tối. Cà phê nóng, áo khoác mỏng và một playlist quen thuộc.',
-                            'media_id' => $media['memory-hero.jpg']->id,
-                        ],
-                        [
-                            'time' => 'Ngày 1 · 17:30',
-                            'title' => 'Ngắm hoàng hôn',
-                            'body' => 'Tụi mình đứng rất lâu ở một đoạn đường cao, nhìn nắng đổi màu trên ruộng bậc thang.',
-                            'media_id' => $media['memory-rice.jpg']->id,
-                        ],
-                        [
-                            'time' => 'Ngày 2 · 08:15',
-                            'title' => 'Đi trong sương',
-                            'body' => 'Sương phủ kín đường, mọi thứ chậm lại, chỉ còn tiếng bước chân và tiếng cười rất khẽ.',
-                            'media_id' => $media['memory-fog.jpg']->id,
-                        ],
-                        [
-                            'time' => 'Ngày 3 · 20:00',
-                            'title' => 'Viết lại vài dòng',
-                            'body' => 'Buổi tối hai đứa ngồi cạnh cửa sổ, chọn lại ảnh và ghi vài dòng để sau này còn nhớ.',
-                            'media_id' => $media['memory-couple-note.jpg']->id,
-                        ],
-                    ],
-                ],
-                'style' => [],
-                'settings' => [
-                    'lightbox' => true,
-                ],
-            ],
-            [
-                'type' => 'music',
-                'title' => 'Nhạc nền kỷ niệm',
-                'variant' => 'floating_player',
-                'data' => [
-                    'enabled' => true,
-                    'autoplay' => true,
-                    'loop' => true,
-                    'title' => 'Our Memory Song',
-                    'artist' => 'chuaminh.vn',
-                    'url' => asset('demo/music/our-song.mp3'),
-                    'src' => asset('demo/music/our-song.mp3'),
-                    'cover_media_id' => $cover->id,
-                    'caption' => 'Bật một bài nhạc nhẹ để xem lại kỷ niệm này.',
-                ],
-                'style' => [
-                    'position' => 'bottom',
-                ],
-                'settings' => [
-                    'sticky' => false,
-                    'show_controls' => true,
-                ],
-            ],
-            [
-                'type' => 'ending',
-                'title' => 'Kết bài',
-                'variant' => 'signature',
-                'data' => [
-                    'title' => 'Cảm ơn vì đã cùng anh đi qua ngày hôm đó',
-                    'body' => '
-                        <p>Chuyến đi kết thúc, nhưng mỗi lần mở lại những bức ảnh này, cảm giác như mình vẫn đang ở đó: giữa gió lạnh, mây trắng và những điều rất dịu dàng.</p>
-                        <p>Hy vọng sau này chúng mình sẽ còn nhiều bài viết như thế này nữa.</p>
-                    ',
-                    'signature' => 'Khanh gửi Nhi',
-                    'date' => '25/09/2025',
-                    'button_label' => 'Xem thêm kỷ niệm',
-                    'button_url' => '/',
-                ],
-                'style' => [],
-                'settings' => [],
+                'title' => 'Một dòng để nhớ',
+                'variant' => 'soft_card',
+                'quote_text' => 'Sau này nếu có mệt, mình lại mở những tấm ảnh này ra để nhớ rằng đã từng có những ngày thật yên.',
+                'quote_author' => 'Khánh · 23/09/2025',
             ],
         ];
 
         foreach ($sections as $index => $section) {
-            $post->sections()->create([
+            $items = $section['items'] ?? [];
+            unset($section['items']);
+
+            $sectionModel = $post->sections()->create([
+                ...$section,
                 'section_type_id' => $sectionTypes[$section['type']] ?? null,
-                'type' => $section['type'],
-                'title' => $section['title'],
-                'variant' => $section['variant'] ?? null,
-                'data' => $section['data'] ?? [],
-                'style' => $section['style'] ?? [],
-                'settings' => $section['settings'] ?? [],
                 'sort_order' => $index + 1,
                 'is_visible' => true,
             ]);
-        }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Comments, reactions, private messages
-        |--------------------------------------------------------------------------
-        */
+            foreach ($items as $itemIndex => $item) {
+                $sectionModel->items()->create([
+                    ...$item,
+                    'kind' => $section['type'],
+                    'sort_order' => $itemIndex + 1,
+                ]);
+            }
+        }
 
         Comment::query()->firstOrCreate(
             [
                 'post_id' => $post->id,
                 'name' => 'Thu Linh',
-                'content' => 'Bài này đầy đủ section quá, nhìn là biết có thể dùng làm mẫu để nhập data thật rồi.',
+                'content' => 'Các bố cục ảnh nhìn rất thoáng và cảm xúc.',
             ],
-            [
-                'status' => 'approved',
-            ],
+            ['status' => 'approved'],
         );
 
         Comment::query()->firstOrCreate(
             [
                 'post_id' => $post->id,
                 'name' => 'Minh Nhật',
-                'content' => 'Ảnh đẹp, bố cục ổn, đặc biệt phần timeline và music rất hợp với kiểu lưu kỷ niệm.',
+                'content' => 'Gallery mosaic hợp với chuyến đi này quá.',
             ],
-            [
-                'status' => 'approved',
-            ],
+            ['status' => 'approved'],
         );
 
         foreach (['love', 'like', 'wow'] as $reaction) {
             Reaction::query()->firstOrCreate(
                 [
                     'post_id' => $post->id,
-                    'session_id' => "demo-full-section-{$reaction}",
+                    'session_id' => "demo-gallery-{$reaction}",
                     'reaction_type' => $reaction,
                 ],
-                [
-                    'ip_address' => '127.0.0.1',
-                ],
+                ['ip_address' => '127.0.0.1'],
             );
         }
 
@@ -556,11 +290,9 @@ class DemoContentSeeder extends Seeder
             [
                 'post_id' => $post->id,
                 'name' => 'Người xem bí mật',
-                'message' => 'Chúc hai bạn luôn có thêm thật nhiều chuyến đi đẹp như thế này.',
+                'message' => 'Chúc hai bạn có thêm thật nhiều chuyến đi đẹp như thế này.',
             ],
-            [
-                'status' => 'unread',
-            ],
+            ['status' => 'unread'],
         );
     }
 }

@@ -16,7 +16,9 @@ class MediaCollector
         ]);
 
         foreach ($post->visibleSections as $section) {
-            $ids = $ids->merge($this->collectIds($section->data ?? []));
+            $ids = $ids
+                ->push($section->media_id)
+                ->merge($section->relationLoaded('items') ? $section->items->pluck('media_id') : $section->items()->pluck('media_id'));
         }
 
         return Media::query()
@@ -25,33 +27,5 @@ class MediaCollector
             ->keyBy('id');
     }
 
-    protected function collectIds(mixed $value): array
-    {
-        $ids = [];
-
-        if (! is_array($value)) {
-            return $ids;
-        }
-
-        foreach ($value as $key => $item) {
-            if (in_array($key, ['media_id', 'image_id', 'video_id', 'audio_id', 'poster_id', 'cover_media_id'], true) && is_numeric($item)) {
-                $ids[] = (int) $item;
-            }
-
-            if (in_array($key, ['media_ids', 'images', 'videos'], true) && is_array($item)) {
-                foreach ($item as $id) {
-                    if (is_numeric($id)) {
-                        $ids[] = (int) $id;
-                    }
-                }
-            }
-
-            if (is_array($item)) {
-                $ids = array_merge($ids, $this->collectIds($item));
-            }
-        }
-
-        return $ids;
-    }
 }
 

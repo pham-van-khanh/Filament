@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -25,7 +26,6 @@ class Post extends Model
         'title',
         'slug',
         'excerpt',
-        'content',
         'cover_media_id',
         'status',
         'visibility',
@@ -33,17 +33,12 @@ class Post extends Model
         'unlisted_token',
         'published_at',
         'memory_date',
-        'memory_date_precision',
         'location_name',
-        'location_lat',
-        'location_lng',
         'mood',
         'is_featured',
-        'sort_order',
         'seo_title',
         'seo_description',
         'og_media_id',
-        'settings',
     ];
 
     protected function casts(): array
@@ -53,10 +48,7 @@ class Post extends Model
             'visibility' => PostVisibility::class,
             'published_at' => 'datetime',
             'memory_date' => 'date',
-            'location_lat' => 'decimal:7',
-            'location_lng' => 'decimal:7',
             'is_featured' => 'boolean',
-            'settings' => 'array',
         ];
     }
 
@@ -136,8 +128,38 @@ class Post extends Model
     public function media(): BelongsToMany
     {
         return $this->belongsToMany(Media::class, 'post_media')
-            ->withPivot(['role', 'sort_order', 'metadata'])
+            ->withPivot(['role', 'sort_order'])
             ->withTimestamps();
+    }
+
+    public function detail(): HasOne
+    {
+        return $this->hasOne(PostDetail::class);
+    }
+
+    public function getDateRangeAttribute(): ?string
+    {
+        return $this->relationLoaded('detail') ? $this->detail?->date_range : null;
+    }
+
+    public function getMusicEnabledAttribute(): bool
+    {
+        return (bool) ($this->relationLoaded('detail') ? $this->detail?->music_enabled : false);
+    }
+
+    public function getMusicUrlAttribute(): ?string
+    {
+        return $this->relationLoaded('detail') ? $this->detail?->music_url : null;
+    }
+
+    public function getMusicTitleAttribute(): ?string
+    {
+        return $this->relationLoaded('detail') ? $this->detail?->music_title : null;
+    }
+
+    public function getMusicArtistAttribute(): ?string
+    {
+        return $this->relationLoaded('detail') ? $this->detail?->music_artist : null;
     }
 
     public function scopePublished(Builder $query): Builder
@@ -188,8 +210,7 @@ class Post extends Model
         return $query->when($term, function (Builder $q) use ($term): void {
             $q->where(function (Builder $sub) use ($term): void {
                 $sub->where('title', 'like', "%{$term}%")
-                    ->orWhere('excerpt', 'like', "%{$term}%")
-                    ->orWhere('content', 'like', "%{$term}%");
+                    ->orWhere('excerpt', 'like', "%{$term}%");
             });
         });
     }

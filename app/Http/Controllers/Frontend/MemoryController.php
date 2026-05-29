@@ -16,7 +16,7 @@ class MemoryController extends Controller
     {
         $posts = Post::query()
             ->visibleToPublic()
-            ->with(['coverMedia', 'category', 'template', 'tags'])
+            ->with(['detail', 'coverMedia', 'category', 'template', 'tags'])
             ->withCount('media')
             ->byCategory($request->string('category')->toString() ?: null)
             ->byTag($request->string('tag')->toString() ?: null)
@@ -45,10 +45,12 @@ class MemoryController extends Controller
 
         $post->load([
             'template',
+            'detail',
             'coverMedia',
             'category',
             'tags',
             'visibleSections.sectionType',
+            'visibleSections.items',
             'approvedComments',
         ]);
         $post->loadCount(['approvedComments', 'reactions']);
@@ -58,7 +60,7 @@ class MemoryController extends Controller
         $related = Post::query()
             ->visibleToPublic()
             ->whereKeyNot($post->id)
-            ->with(['coverMedia', 'category'])
+            ->with(['detail', 'coverMedia', 'category'])
             ->when($post->category_id, fn ($query) => $query->where('category_id', $post->category_id))
             ->latest('published_at')
             ->take(3)

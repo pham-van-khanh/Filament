@@ -7,11 +7,14 @@
     @endif
     <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60"></div>
     @if($post->category)
-      <span class="absolute left-4 top-4 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold backdrop-blur" style="color: {{ $post->category->color ?? '#2563eb' }}">□ {{ $post->category->name }}</span>
+      <span class="absolute left-4 top-4 inline-flex items-center gap-1 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold backdrop-blur" style="color: {{ $post->category->color ?? '#2563eb' }}">
+        <x-ui-icon name="tag" class="h-3 w-3" />
+        {{ $post->category->name }}
+      </span>
     @endif
     <div class="absolute inset-x-0 bottom-0 p-4 text-white">
       <h3 class="text-xl font-bold leading-tight">{{ $post->title }}</h3>
-      <p class="mt-1 text-sm text-white/78">{{ data_get($post->settings, 'date_range') ?: optional($post->memory_date)->format('d/m/Y') }}</p>
+      <p class="mt-1 text-sm text-white/78">{{ $post->date_range ?: optional($post->memory_date)->format('d/m/Y') }}</p>
     </div>
   </div>
 </a>

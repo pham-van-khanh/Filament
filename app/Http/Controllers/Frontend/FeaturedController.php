@@ -12,7 +12,7 @@ class FeaturedController
         $posts = Post::query()
             ->visibleToPublic()
             ->featured()
-            ->with(['coverMedia', 'category', 'template'])
+            ->with(['detail', 'coverMedia', 'category', 'template'])
             ->latest('published_at')
             ->paginate(12);
 

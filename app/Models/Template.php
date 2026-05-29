@@ -49,9 +49,5 @@ class Template extends Model
         return $this->belongsTo(Media::class, 'preview_media_id');
     }
 
-    public function presets(): HasMany
-    {
-        return $this->hasMany(TemplatePreset::class);
-    }
 }
 
