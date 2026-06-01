@@ -3,8 +3,8 @@
   $url = $data['url'] ?? '';
   $frameClass = match ($data['layout'] ?? null) {
       'square' => 'aspect-square max-w-[640px]',
-      'vertical' => 'aspect-[9/16] max-w-[420px]',
-      default => 'aspect-video',
+      'vertical' => 'aspect-[9/16] max-w-[460px]',
+      default => 'aspect-video max-w-5xl',
   };
 
   if (str_contains($url, 'youtube.com/watch?v=')) {
@@ -13,9 +13,9 @@
 @endphp
 
 @if($video || $url)
-  <section class="memory-section" style="{{ memory_style($style) }}">
-    <figure class="memory-container">
-      <div class="{{ $frameClass }} mx-auto overflow-hidden rounded-[var(--memory-image-radius)] bg-black">
+  <section class="bg-[#f8f0ea] px-4 py-10 sm:px-5 sm:py-16" style="{{ memory_style($style) }}">
+    <figure class="mx-auto max-w-6xl">
+      <div class="{{ $frameClass }} mx-auto overflow-hidden rounded-[2rem] bg-[#14090d] shadow-[0_24px_90px_rgba(20,9,13,0.22)]">
         @if($video)
           <video src="{{ $video->display_url }}" class="h-full w-full object-cover" controls playsinline preload="metadata"></video>
         @else
@@ -23,7 +23,7 @@
         @endif
       </div>
       @if(! empty($data['caption']))
-        <figcaption class="mt-4 text-center text-sm text-[var(--memory-muted)]">{{ $data['caption'] }}</figcaption>
+        <figcaption class="mx-auto mt-4 max-w-2xl text-center text-sm font-medium leading-6 text-[#7b6258]">{{ $data['caption'] }}</figcaption>
       @endif
     </figure>
   </section>
