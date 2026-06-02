@@ -1,15 +1,16 @@
 @php
   $slides = collect($data['slides'] ?? []);
   $height = $style['--section-height'] ?? 'min(74svh, 590px)';
+  $slideHeight = "max({$height}, 320px)";
 @endphp
 
 @if($slides->isNotEmpty())
-  <section class="memory-section-frame overflow-hidden bg-[#f7eee8] px-4 py-11 sm:px-5 sm:py-20">
+  <section class="memory-section-frame overflow-hidden bg-[#f7eee8] px-4 py-14 sm:px-5 sm:py-20">
     <div class="mx-auto max-w-6xl">
       <div class="mb-5 flex items-end justify-between gap-4 sm:mb-7">
         <div class="max-w-2xl">
           <p class="font-['Dancing_Script'] text-3xl leading-none text-[#c05779]">Những khung hình</p>
-          <h2 class="memory-heading mt-2 text-balance text-3xl font-semibold leading-tight text-[#32131c] sm:text-5xl">
+          <h2 class="memory-heading mt-1 text-balance text-[2rem] font-semibold leading-[1.05] text-[#32131c] sm:text-5xl">
             {{ $section->title ?: 'Khoảnh khắc nổi bật' }}
           </h2>
           @if($section->subtitle)
@@ -34,7 +35,7 @@
               $media = $mediaById->get($slide['media_id'] ?? null);
             @endphp
             @if($media)
-              <figure class="swiper-slide group relative !w-[84%] overflow-hidden rounded-[2rem] bg-[#eadbd1] shadow-[0_24px_88px_rgba(74,39,32,0.14)] ring-1 ring-[#ead7ca] sm:!w-[54%] lg:!w-[38%]" style="height: {{ $height }}">
+              <figure class="swiper-slide group relative !w-[88%] overflow-hidden rounded-[2rem] bg-[#eadbd1] shadow-[0_24px_88px_rgba(74,39,32,0.14)] ring-1 ring-[#ead7ca] sm:!w-[54%] lg:!w-[38%]" style="height: {{ $slideHeight }}">
                 <img src="{{ $media->display_url }}" alt="{{ $media->alt ?: ($slide['caption'] ?? $slide['title'] ?? $section->title ?? $post->title) }}" loading="lazy" class="h-full w-full object-cover transition duration-700 group-hover:scale-[1.035]">
                 <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#241218]/78 via-[#241218]/38 to-transparent p-4 text-white sm:p-5">
                   @if(! empty($slide['title']))
@@ -51,7 +52,7 @@
           @endforeach
         </div>
 
-        <div class="swiper-pagination !relative !bottom-auto mt-4"></div>
+        <div class="swiper-pagination !relative !bottom-auto mt-5"></div>
       </div>
     </div>
   </section>

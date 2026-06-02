@@ -4,12 +4,13 @@
 @endphp
 
 @if($media)
-  <section class="memory-section-frame bg-[#fffaf5] px-4 py-10 sm:px-5 sm:py-16" style="{{ memory_style($style) }}">
+  <section class="memory-section-frame bg-[#fffaf5] px-4 py-16 sm:px-5 sm:py-24" style="{{ memory_style($style) }}">
     <figure class="mx-auto max-w-6xl">
       @if($section->title || $section->subtitle)
-        <div class="mb-5 max-w-2xl">
+        <div class="mb-6 max-w-2xl">
+          <p class="text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-[#c05779]">Khoảnh khắc yêu thích</p>
           @if($section->title)
-            <h2 class="memory-heading text-balance text-3xl font-semibold leading-tight text-[#32131c] sm:text-5xl">
+            <h2 class="memory-heading mt-2 max-w-[12ch] text-balance text-[2.05rem] font-semibold leading-[1.05] text-[#32131c] sm:max-w-2xl sm:text-5xl">
               {{ $section->title }}
             </h2>
           @endif
@@ -19,13 +20,14 @@
         </div>
       @endif
 
-      <div class="group relative overflow-hidden rounded-[2rem] bg-[#eadbd1] shadow-[0_28px_95px_rgba(74,39,32,0.14)] ring-1 ring-[#ead7ca]">
-        <img src="{{ $media->display_url }}" alt="{{ $media->alt ?: ($caption ?? $section->title ?? $post->title) }}" loading="lazy" class="max-h-[88svh] w-full object-cover transition duration-700 group-hover:scale-[1.015]">
-        <div class="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#241218]/28 to-transparent"></div>
+      <div class="group relative overflow-hidden rounded-[2rem] bg-white p-2 shadow-[0_24px_86px_rgba(74,39,32,0.11)] ring-1 ring-[#f0d3d9]">
+        <div class="overflow-hidden rounded-[1.5rem] bg-[#eadbd1]">
+          <img src="{{ $media->display_url }}" alt="{{ $media->alt ?: ($caption ?? $section->title ?? $post->title) }}" loading="lazy" class="h-[260px] w-full object-cover transition duration-700 group-hover:scale-[1.02] sm:h-[560px]">
+        </div>
       </div>
 
       @if($caption)
-        <figcaption class="memory-caption mx-auto mt-4 max-w-2xl px-2 text-center">
+        <figcaption class="memory-caption mx-auto mt-5 max-w-[19rem] px-2 text-center sm:max-w-2xl">
           {{ $caption }}
         </figcaption>
       @endif

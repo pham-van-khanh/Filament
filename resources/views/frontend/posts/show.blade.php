@@ -95,7 +95,7 @@
 
         <div class="rounded-[2rem] border border-[#ead7ca] bg-white/82 p-3 shadow-[0_24px_90px_rgba(74,39,32,0.08)] backdrop-blur sm:p-4">
           <div class="grid grid-cols-3 gap-2">
-            @foreach(['like' => ['label' => 'Thích', 'icon' => 'thumb-up'], 'love' => ['label' => 'Yêu', 'icon' => 'heart'], 'wow' => ['label' => 'Wow', 'icon' => 'sparkle']] as $type => $reaction)
+            @foreach(['like' => ['label' => 'Thương', 'icon' => 'thumb-up'], 'love' => ['label' => 'Nhớ', 'icon' => 'heart'], 'wow' => ['label' => 'Wow', 'icon' => 'sparkle']] as $type => $reaction)
               <form method="POST" action="{{ route('memories.reactions.store', $post->slug) }}">
                 @csrf
                 <input type="hidden" name="reaction_type" value="{{ $type }}">
@@ -115,7 +115,7 @@
             class="mt-2 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-[1.35rem] border border-[#d9a2a9] bg-[#812744] px-4 py-3 text-sm font-semibold text-white transition duration-200 hover:bg-[#6f203a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e6a4ba] active:translate-y-px"
           >
             <x-ui-icon name="share" class="h-5 w-5" />
-            Chia sẻ kỷ niệm
+            Gửi một cảm xúc
           </button>
         </div>
       </div>
@@ -134,13 +134,15 @@
 
           <div class="space-y-4">
             @forelse($post->approvedComments as $comment)
-              <article class="grid grid-cols-[2.5rem_1fr] gap-3">
-                <div class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[#f3d5c5] text-sm font-bold text-[#812744]">
+              <article class="rounded-[1.5rem] bg-[#fff8f3] p-3 shadow-sm ring-1 ring-[#f0d3d9]">
+                <div class="flex gap-3">
+                <div class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#f3d5c5] text-xs font-bold text-[#812744]">
                   {{ str($comment->name)->substr(0, 2)->upper() }}
                 </div>
-                <div class="rounded-[1.5rem] rounded-tl-sm bg-[#fff8f3] px-4 py-3 ring-1 ring-[#f0dfd5]">
-                  <p class="font-semibold text-[#32131c]">{{ $comment->name }}</p>
+                <div class="min-w-0">
+                  <p class="text-sm font-semibold text-[#32131c]">{{ $comment->name }}</p>
                   <p class="mt-1 text-sm leading-6 text-[#6b554d]">{{ $comment->content }}</p>
+                </div>
                 </div>
               </article>
             @empty
@@ -173,19 +175,19 @@
         </div>
 
         <aside class="rounded-[2rem] border border-[#eed2dc] bg-[#fbe8ef] p-4 shadow-[0_24px_80px_rgba(129,39,68,0.08)] sm:p-6 lg:sticky lg:top-6 lg:self-start">
-          <p class="font-['Dancing_Script'] text-2xl leading-none text-[#b83265]">Chỉ gửi riêng</p>
-          <h3 class="memory-heading mt-1 text-3xl font-semibold leading-tight text-[#812744]">Một lời nhắn không cần công khai.</h3>
+          <p class="font-['Dancing_Script'] text-2xl leading-none text-[#b83265]">Chia sẻ riêng</p>
+          <h3 class="memory-heading mt-1 text-3xl font-semibold leading-tight text-[#812744]">Gửi một lời nhắn nhỏ.</h3>
           <p class="mt-3 text-sm leading-6 text-[#7b4d5d]">Tin nhắn riêng chỉ được gửi tới admin của kỷ niệm này.</p>
 
           <form method="POST" action="{{ route('memories.messages.store', $post->slug) }}" class="mt-5">
             @csrf
             <div class="grid gap-3">
-              <input name="name" required autocomplete="name" aria-label="Tên của bạn" placeholder="Tên của bạn…" class="min-h-12 rounded-2xl border border-white/90 bg-white/82 px-4 py-3 text-sm font-medium text-[#32131c] outline-none placeholder:text-[#9d7581] focus:border-[#d84d80] focus-visible:ring-2 focus-visible:ring-white">
-              <input name="email" type="email" autocomplete="email" spellcheck="false" aria-label="Email nếu muốn" placeholder="Email nếu muốn…" class="min-h-12 rounded-2xl border border-white/90 bg-white/82 px-4 py-3 text-sm font-medium text-[#32131c] outline-none placeholder:text-[#9d7581] focus:border-[#d84d80] focus-visible:ring-2 focus-visible:ring-white">
-              <textarea name="message" required rows="5" aria-label="Tin nhắn riêng" placeholder="Tin nhắn này chỉ admin đọc…" class="w-full rounded-2xl border border-white/90 bg-white/82 px-4 py-3 text-sm font-medium leading-6 text-[#32131c] outline-none placeholder:text-[#9d7581] focus:border-[#d84d80] focus-visible:ring-2 focus-visible:ring-white"></textarea>
+              <input name="name" required autocomplete="name" aria-label="Tên của bạn" placeholder="Tên của bạn..." class="min-h-12 rounded-2xl border border-white/90 bg-white/82 px-4 py-3 text-sm font-medium text-[#32131c] outline-none placeholder:text-[#9d7581] focus:border-[#d84d80] focus-visible:ring-2 focus-visible:ring-white">
+              <input name="email" type="email" autocomplete="email" spellcheck="false" aria-label="Email nếu muốn" placeholder="Email nếu muốn nhận phản hồi..." class="min-h-12 rounded-2xl border border-white/90 bg-white/82 px-4 py-3 text-sm font-medium text-[#32131c] outline-none placeholder:text-[#9d7581] focus:border-[#d84d80] focus-visible:ring-2 focus-visible:ring-white">
+              <textarea name="message" required rows="5" aria-label="Tin nhắn riêng" placeholder="Viết vài dòng cho kỷ niệm này..." class="w-full rounded-2xl border border-white/90 bg-white/82 px-4 py-3 text-sm font-medium leading-6 text-[#32131c] outline-none placeholder:text-[#9d7581] focus:border-[#d84d80] focus-visible:ring-2 focus-visible:ring-white"></textarea>
             </div>
             <button type="submit" class="mt-3 inline-flex min-h-12 w-full items-center justify-center rounded-full border border-[#812744]/20 bg-white px-5 py-3 text-sm font-semibold text-[#812744] transition hover:border-[#812744]/40 hover:bg-[#fff8fb] focus:outline-none focus-visible:ring-2 focus-visible:ring-white active:translate-y-px">
-              Gửi riêng
+              Gửi lời nhắn
             </button>
           </form>
         </aside>
