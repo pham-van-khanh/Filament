@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "skills": {
+    "design-taste-frontend": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/taste-skill/SKILL.md",
+      "computedHash": "899b84384f74f540ea5284d9b2e9234e050998b42eacc805410b518d4226c0b3"
+    },
+    "frontend-design": {
+      "source": "holaboss-ai/holaOS",
+      "sourceType": "github",
+      "skillPath": "runtime/harnesses/src/embedded-skills/frontend-design/SKILL.md",
+      "computedHash": "fc011153b75dd28a0a0d95ab7b9746a4dde94261f860c39498bff29133f925da"
+    },
+    "interface-design": {
+      "source": "holaboss-ai/holaOS",
+      "sourceType": "github",
+      "skillPath": "runtime/harnesses/src/embedded-skills/interface-design/SKILL.md",
+      "computedHash": "182db9b43fb1b3dcdc9c190a6c12bdbbeb34943bc8c09ff21cde9e61b662d3b9"
+    },
+    "redesign-existing-projects": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/redesign-skill/SKILL.md",
+      "computedHash": "47eced3e960a2c961d3cbee11fa1216264f589344b586a5cbd03967cd6b9c54b"
+    },
+    "skill-creator": {
+      "source": "holaboss-ai/holaOS",
+      "sourceType": "github",
+      "skillPath": "runtime/harnesses/src/embedded-skills/skill-creator/SKILL.md",
+      "computedHash": "350ac197dea48a730c0b254c668193bf4326849fb0de3f4ff99d45d4cc4fe3bc"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "computedHash": "f3bc47f890f42a44db1007ab390709ec368e4b8c089baee6b0007182236ac474"
+    }
+  }
+}

@@ -1,10 +1,10 @@
 @php
   $slides = collect($data['slides'] ?? []);
-  $height = $style['--section-height'] ?? '84svh';
+  $height = $style['--section-height'] ?? 'min(86svh, 760px)';
 @endphp
 
 @if($slides->isNotEmpty())
-  <section class="memory-section !py-0" style="{{ memory_style($style) }}">
+  <section class="memory-section-frame !py-0" style="{{ memory_style($style) }}">
     <div class="swiper" data-memory-slider data-loop="true" data-autoplay="{{ ($data['autoplay'] ?? true) ? 'true' : 'false' }}">
       <div class="swiper-wrapper">
         @foreach($slides as $slide)
@@ -14,8 +14,8 @@
           @if($media)
             <figure class="swiper-slide relative bg-[#14090d]" style="height: {{ $height }}">
               <img src="{{ $media->display_url }}" alt="{{ $media->alt ?: ($slide['caption'] ?? $slide['title'] ?? $post->title) }}" loading="lazy" class="h-full w-full object-cover opacity-90">
-              <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-[#14090d]/86"></div>
-              <figcaption class="absolute bottom-10 left-1/2 w-[min(100%-32px,960px)] -translate-x-1/2 text-white sm:bottom-14">
+              <div class="absolute inset-0 bg-gradient-to-b from-[#14090d]/18 via-[#14090d]/8 to-[#14090d]/86"></div>
+              <figcaption class="absolute bottom-10 left-1/2 w-[calc(100%_-_32px)] max-w-[960px] -translate-x-1/2 text-white sm:bottom-14">
                 @if(! empty($slide['title']))
                   <h3 class="memory-heading max-w-3xl text-balance text-4xl font-semibold leading-tight sm:text-6xl">{{ $slide['title'] }}</h3>
                 @endif

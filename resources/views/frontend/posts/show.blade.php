@@ -17,8 +17,12 @@
     $visibleSections = collect($post->visibleSections);
     $musicSections = $visibleSections->filter(fn ($section) => $section->component_type === 'music' || $section->type === 'music');
     $storySections = $visibleSections->reject(fn ($section) => $section->component_type === 'music' || $section->type === 'music');
-    $musicUrl = $post->music_url;
-    $musicEnabled = $post->music_enabled;
+    $musicSection = $musicSections->first(fn ($section) => filled($section->url));
+    $musicUrl = $post->music_url ?: $musicSection?->url;
+    $hasPostMusic = filled($musicUrl);
+    $musicTitle = $post->music_title ?: $musicSection?->headline ?: 'Soundtrack của kỷ niệm';
+    $musicArtist = $post->music_artist ?: $musicSection?->subtitle;
+    $publishedLine = $post->published_at?->format('d/m/Y');
   @endphp
 
   @isset($isPreview)
@@ -27,155 +31,188 @@
     </div>
   @endisset
 
-  @foreach($storySections as $section)
-    {!! $renderer->render($section, $post, $mediaById) !!}
-  @endforeach
+  <div
+    class="memory-public-detail"
+    @if($hasPostMusic)
+      x-data="{ playing: false, startMemoryMusic() { const audio = this.$refs.memoryAudio; if (! audio) return; audio.volume = 0.82; audio.play().catch(() => {}); }, toggleMemoryMusic() { const audio = this.$refs.memoryAudio; if (! audio) return; audio.paused ? audio.play().catch(() => {}) : audio.pause(); } }"
+      x-init="$nextTick(() => startMemoryMusic())"
+    @endif
+  >
+    @if($hasPostMusic)
+      <div class="memory-floating-player" aria-label="Trình phát nhạc của kỷ niệm">
+        <button
+          type="button"
+          x-on:click="toggleMemoryMusic()"
+          x-bind:aria-pressed="playing ? 'true' : 'false'"
+          x-bind:class="playing ? 'is-playing' : ''"
+          class="memory-floating-player__button"
+          aria-label="Bật hoặc tạm dừng nhạc"
+          title="{{ $musicTitle }}"
+        >
+          <x-ui-icon x-show="!playing" name="music" class="h-5 w-5" />
+          <span x-cloak x-show="playing" class="flex h-5 items-end gap-0.5" aria-hidden="true">
+            <i class="block h-2 w-1 animate-pulse rounded bg-current"></i>
+            <i class="block h-5 w-1 animate-pulse rounded bg-current [animation-delay:120ms]"></i>
+            <i class="block h-3.5 w-1 animate-pulse rounded bg-current [animation-delay:240ms]"></i>
+          </span>
+        </button>
+      </div>
 
-  <section class="bg-[#f8f0ea] px-4 py-8 sm:px-5 sm:py-10">
-    <div class="mx-auto max-w-[820px]">
-      <div class="rounded-[2rem] border border-[#ead7ca] bg-[#fffaf5] p-3 shadow-[0_20px_70px_rgba(74,39,32,0.08)] sm:p-5">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div class="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap">
+      <audio
+        x-ref="memoryAudio"
+        src="{{ $musicUrl }}"
+        autoplay
+        loop
+        preload="auto"
+        x-on:play="playing = true"
+        x-on:pause="playing = false"
+        x-on:ended="playing = false"
+      ></audio>
+    @endif
+
+    <div class="memory-story-flow">
+      @foreach($storySections as $section)
+        {!! $renderer->render($section, $post, $mediaById) !!}
+      @endforeach
+    </div>
+
+    <section class="relative overflow-hidden bg-[#fff8f3] px-4 py-10 sm:px-5 sm:py-14">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#fffaf5] to-transparent"></div>
+
+      <div class="relative mx-auto grid max-w-6xl gap-5 lg:grid-cols-[minmax(0,0.82fr)_minmax(360px,1fr)] lg:items-end">
+        <div class="max-w-2xl">
+          <p class="font-['Dancing_Script'] text-3xl leading-none text-[#c05779]">Gửi một dấu nhỏ</p>
+          <h2 class="memory-heading mt-2 text-balance text-4xl font-semibold leading-tight text-[#32131c] sm:text-5xl">
+            Kỷ niệm này còn mở cho những cảm xúc rất riêng.
+          </h2>
+          <p class="mt-4 max-w-xl text-sm leading-6 text-[#7b6258]">
+            {{ $post->reactions_count }} cảm xúc · {{ $post->approved_comments_count }} bình luận
+            @if($publishedLine)
+              · {{ $publishedLine }}
+            @endif
+          </p>
+        </div>
+
+        <div class="rounded-[2rem] border border-[#ead7ca] bg-white/82 p-3 shadow-[0_24px_90px_rgba(74,39,32,0.08)] backdrop-blur sm:p-4">
+          <div class="grid grid-cols-3 gap-2">
             @foreach(['like' => ['label' => 'Thích', 'icon' => 'thumb-up'], 'love' => ['label' => 'Yêu', 'icon' => 'heart'], 'wow' => ['label' => 'Wow', 'icon' => 'sparkle']] as $type => $reaction)
               <form method="POST" action="{{ route('memories.reactions.store', $post->slug) }}">
                 @csrf
                 <input type="hidden" name="reaction_type" value="{{ $type }}">
-                <button class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[#ead7ca] bg-white px-3 py-3 text-sm font-semibold text-[#6f3b32] transition hover:-translate-y-0.5 hover:border-[#d84d80] hover:text-[#b83265] focus:outline-none focus:ring-2 focus:ring-[#e6a4ba] sm:w-auto sm:px-4">
-                  <x-ui-icon :name="$reaction['icon']" class="h-4 w-4" />
+                <button type="submit" class="group inline-flex min-h-[4.5rem] w-full flex-col items-center justify-center gap-2 rounded-[1.35rem] bg-[#fff8f3] px-2 py-3 text-sm font-semibold text-[#6f3b32] ring-1 ring-[#ead7ca] transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-[#b83265] hover:shadow-[0_14px_36px_rgba(184,50,101,0.12)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e6a4ba] active:translate-y-0">
+                  <x-ui-icon :name="$reaction['icon']" class="h-5 w-5 transition group-hover:scale-110" />
                   {{ $reaction['label'] }}
                 </button>
               </form>
             @endforeach
           </div>
 
-          <button type="button" aria-label="Chia sẻ kỷ niệm" onclick="navigator.share?.({title: @js($post->title), url: location.href})" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[#ead7ca] bg-white px-4 py-3 text-sm font-semibold text-[#6f3b32] transition hover:border-[#d84d80] hover:text-[#b83265] focus:outline-none focus:ring-2 focus:ring-[#e6a4ba]">
+          <button
+            type="button"
+            aria-label="Chia sẻ kỷ niệm"
+            x-data
+            x-on:click="navigator.share ? navigator.share({title: @js($post->title), url: location.href}) : navigator.clipboard?.writeText(location.href)"
+            class="mt-2 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-[1.35rem] border border-[#d9a2a9] bg-[#812744] px-4 py-3 text-sm font-semibold text-white transition duration-200 hover:bg-[#6f203a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e6a4ba] active:translate-y-px"
+          >
             <x-ui-icon name="share" class="h-5 w-5" />
-            Chia sẻ
+            Chia sẻ kỷ niệm
           </button>
-        </div>
-
-        <p class="mt-4 px-1 text-sm font-medium text-[#8d7168]">
-          {{ $post->reactions_count }} cảm xúc · {{ $post->approved_comments_count }} bình luận
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <section class="bg-[#fffaf5] px-4 py-10 sm:px-5 sm:py-14">
-    <div class="mx-auto max-w-[820px]">
-      <div class="mb-6 flex items-end justify-between gap-4">
-        <div>
-          <p class="font-['Dancing_Script'] text-2xl text-[#c05779]">Lời nhắn còn lại</p>
-          <h2 class="memory-heading mt-1 text-3xl font-semibold leading-tight text-[#32131c] sm:text-4xl">Bình luận</h2>
-        </div>
-        <span class="rounded-full bg-[#f8e4dd] px-3 py-1.5 text-xs font-semibold text-[#8b4b42]">{{ $post->approved_comments_count }}</span>
-      </div>
-
-      <div class="space-y-4">
-        @forelse($post->approvedComments as $comment)
-          <article class="flex gap-3">
-            <div class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#f3d5c5] text-sm font-bold text-[#812744]">
-              {{ str($comment->name)->substr(0, 2)->upper() }}
-            </div>
-            <div class="rounded-3xl rounded-tl-sm border border-[#f0dfd5] bg-white px-4 py-3 shadow-sm">
-              <p class="font-semibold text-[#32131c]">{{ $comment->name }}</p>
-              <p class="mt-1 text-sm leading-6 text-[#6b554d]">{{ $comment->content }}</p>
-            </div>
-          </article>
-        @empty
-          <p class="rounded-3xl border border-dashed border-[#e6cfc4] bg-[#fff6f0] px-5 py-6 text-sm leading-6 text-[#7b6258]">
-            Chưa có bình luận. Hãy để lại một lời nhắn nhỏ cho kỷ niệm này.
-          </p>
-        @endforelse
-      </div>
-
-      <form method="POST" action="{{ route('memories.comments.store', $post->slug) }}" class="mt-7 rounded-[2rem] border border-[#ead7ca] bg-white p-4 shadow-[0_18px_60px_rgba(74,39,32,0.07)] sm:p-5">
-        @csrf
-        <div class="grid gap-3 sm:grid-cols-2">
-          <input name="name" required placeholder="Tên hiển thị" class="min-h-12 rounded-2xl border border-[#ead7ca] bg-[#fffaf5] px-4 py-3 text-sm outline-none placeholder:text-[#ab9389] focus:border-[#d84d80] focus:ring-2 focus:ring-[#f4cad8]">
-          <input name="email" type="email" placeholder="Email tùy chọn" class="min-h-12 rounded-2xl border border-[#ead7ca] bg-[#fffaf5] px-4 py-3 text-sm outline-none placeholder:text-[#ab9389] focus:border-[#d84d80] focus:ring-2 focus:ring-[#f4cad8]">
-        </div>
-        <textarea name="content" required rows="3" placeholder="Viết cảm nhận hoặc lời nhắn của bạn về kỷ niệm này..." class="mt-3 w-full rounded-2xl border border-[#ead7ca] bg-[#fffaf5] px-4 py-3 text-sm leading-6 outline-none placeholder:text-[#ab9389] focus:border-[#d84d80] focus:ring-2 focus:ring-[#f4cad8]"></textarea>
-        <button class="mt-3 inline-flex min-h-12 items-center justify-center rounded-full bg-[#812744] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#6f203a] focus:outline-none focus:ring-2 focus:ring-[#e6a4ba]">
-          Gửi bình luận
-        </button>
-      </form>
-
-      <form method="POST" action="{{ route('memories.messages.store', $post->slug) }}" class="mt-5 rounded-[2rem] border border-[#eed2dc] bg-[#fbe8ef] p-4 sm:p-5">
-        @csrf
-        <h3 class="memory-heading text-2xl font-semibold text-[#812744]">Gửi lời nhắn riêng</h3>
-        <div class="mt-3 grid gap-3 sm:grid-cols-2">
-          <input name="name" required placeholder="Tên của bạn" class="min-h-12 rounded-2xl border border-white/90 bg-white/80 px-4 py-3 text-sm outline-none focus:border-[#d84d80] focus:ring-2 focus:ring-white">
-          <input name="email" type="email" placeholder="Email nếu muốn" class="min-h-12 rounded-2xl border border-white/90 bg-white/80 px-4 py-3 text-sm outline-none focus:border-[#d84d80] focus:ring-2 focus:ring-white">
-        </div>
-        <textarea name="message" required rows="3" placeholder="Tin nhắn này chỉ admin đọc..." class="mt-3 w-full rounded-2xl border border-white/90 bg-white/80 px-4 py-3 text-sm leading-6 outline-none focus:border-[#d84d80] focus:ring-2 focus:ring-white"></textarea>
-        <button class="mt-3 inline-flex min-h-12 items-center justify-center rounded-full border border-[#812744]/20 bg-white px-5 py-3 text-sm font-semibold text-[#812744] transition hover:border-[#812744]/40 hover:bg-[#fff8fb] focus:outline-none focus:ring-2 focus:ring-white">
-          Gửi riêng
-        </button>
-      </form>
-    </div>
-  </section>
-
-  @if($related->isNotEmpty())
-    <section class="bg-[#f8f0ea] px-4 py-10 sm:px-5 sm:py-14">
-      <div class="mx-auto max-w-6xl">
-        <div class="mb-6 flex items-end justify-between gap-4">
-          <div>
-            <p class="font-['Dancing_Script'] text-2xl text-[#c05779]">Đi tiếp một chút</p>
-            <h2 class="memory-heading text-3xl font-semibold text-[#32131c] sm:text-4xl">Kỷ niệm liên quan</h2>
-          </div>
-          <a href="{{ route('memories.index') }}" class="hidden rounded-full border border-[#d9a2a9] px-4 py-2 text-sm font-semibold text-[#812744] transition hover:bg-white sm:inline-flex">Xem tất cả</a>
-        </div>
-        <div class="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0">
-          @foreach($related as $item)
-            <div class="w-[72%] shrink-0 snap-center sm:w-auto">
-              <x-memory-card :post="$item" />
-            </div>
-          @endforeach
         </div>
       </div>
     </section>
-  @endif
 
-  @foreach($musicSections as $section)
-    {!! $renderer->render($section, $post, $mediaById) !!}
-  @endforeach
-
-  @if($musicEnabled && $musicUrl)
-    <section class="memory-music-section relative overflow-hidden bg-[#241218] px-4 py-12 text-white sm:px-5 sm:py-16">
-      @if($post->coverMedia)
-        <img src="{{ $post->coverMedia->display_url }}" alt="" aria-hidden="true" loading="lazy" class="absolute inset-0 h-full w-full object-cover opacity-25 blur-sm scale-105">
-      @endif
-      <div class="absolute inset-0 bg-gradient-to-b from-[#241218]/70 via-[#241218]/92 to-[#14090d]"></div>
-
-      <div
-        x-data="{ playing: false, toggle() { const audio = this.$refs.audio; audio.paused ? audio.play() : audio.pause(); } }"
-        class="relative mx-auto max-w-[820px]"
-      >
-        <div class="grid gap-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-          <div>
-            <p class="font-['Dancing_Script'] text-3xl text-[#f3bdca]">Soundtrack</p>
-            <h2 class="memory-heading mt-2 text-4xl font-semibold leading-tight text-white sm:text-5xl">
-              {{ $post->music_title ?: 'Bài nhạc của kỷ niệm này' }}
-            </h2>
-            @if($post->music_artist)
-              <p class="mt-3 text-base text-white/68">{{ $post->music_artist }}</p>
-            @endif
+    <section class="bg-[#fff8f3] px-4 pb-12 pt-4 sm:px-5 sm:pb-16">
+      <div class="mx-auto grid max-w-6xl gap-5 lg:grid-cols-[minmax(0,0.92fr)_minmax(360px,0.78fr)]">
+        <div class="rounded-[2rem] border border-[#ead7ca] bg-white p-4 shadow-[0_24px_80px_rgba(74,39,32,0.07)] sm:p-6">
+          <div class="mb-5 flex items-end justify-between gap-4">
+            <div>
+              <p class="font-['Dancing_Script'] text-2xl leading-none text-[#c05779]">Lời nhắn còn lại</p>
+              <h2 class="memory-heading mt-1 text-3xl font-semibold leading-tight text-[#32131c] sm:text-4xl">Bình luận</h2>
+            </div>
+            <span class="rounded-full bg-[#f8e4dd] px-3 py-1.5 text-xs font-semibold text-[#8b4b42]">{{ $post->approved_comments_count }}</span>
           </div>
 
-          <button type="button" x-on:click="toggle()" class="inline-flex min-h-14 items-center justify-center gap-3 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#812744] shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[#f4cad8]" title="{{ $post->music_title ?: 'Bật/tắt nhạc nền' }}">
-            <x-ui-icon x-show="!playing" name="music" class="h-5 w-5" />
-            <span x-show="playing" class="flex h-5 items-end gap-0.5" aria-hidden="true">
-              <i class="block h-2 w-1 animate-pulse rounded bg-[#d84d80]"></i>
-              <i class="block h-5 w-1 animate-pulse rounded bg-[#d84d80] [animation-delay:120ms]"></i>
-              <i class="block h-3.5 w-1 animate-pulse rounded bg-[#d84d80] [animation-delay:240ms]"></i>
-            </span>
-            <span x-text="playing ? 'Tạm dừng' : 'Phát nhạc'"></span>
-          </button>
+          <div class="space-y-4">
+            @forelse($post->approvedComments as $comment)
+              <article class="grid grid-cols-[2.5rem_1fr] gap-3">
+                <div class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[#f3d5c5] text-sm font-bold text-[#812744]">
+                  {{ str($comment->name)->substr(0, 2)->upper() }}
+                </div>
+                <div class="rounded-[1.5rem] rounded-tl-sm bg-[#fff8f3] px-4 py-3 ring-1 ring-[#f0dfd5]">
+                  <p class="font-semibold text-[#32131c]">{{ $comment->name }}</p>
+                  <p class="mt-1 text-sm leading-6 text-[#6b554d]">{{ $comment->content }}</p>
+                </div>
+              </article>
+            @empty
+              <p class="rounded-[1.5rem] border border-dashed border-[#e6cfc4] bg-[#fff8f3] px-5 py-6 text-sm leading-6 text-[#7b6258]">
+                Chưa có bình luận. Hãy để lại một lời nhắn nhỏ cho kỷ niệm này.
+              </p>
+            @endforelse
+          </div>
+
+          <form method="POST" action="{{ route('memories.comments.store', $post->slug) }}" class="mt-6 border-t border-[#ead7ca] pt-5">
+            @csrf
+            <div class="grid gap-3 sm:grid-cols-2">
+              <label class="grid gap-1.5 text-xs font-semibold text-[#7b6258]">
+                Tên hiển thị
+                <input name="name" required autocomplete="name" placeholder="Tên hiển thị…" class="min-h-12 rounded-2xl border border-[#ead7ca] bg-[#fffaf5] px-4 py-3 text-sm font-medium text-[#32131c] outline-none placeholder:text-[#ab9389] focus:border-[#d84d80] focus-visible:ring-2 focus-visible:ring-[#f4cad8]">
+              </label>
+              <label class="grid gap-1.5 text-xs font-semibold text-[#7b6258]">
+                Email tùy chọn
+                <input name="email" type="email" autocomplete="email" spellcheck="false" placeholder="Email tùy chọn…" class="min-h-12 rounded-2xl border border-[#ead7ca] bg-[#fffaf5] px-4 py-3 text-sm font-medium text-[#32131c] outline-none placeholder:text-[#ab9389] focus:border-[#d84d80] focus-visible:ring-2 focus-visible:ring-[#f4cad8]">
+              </label>
+            </div>
+            <label class="mt-3 grid gap-1.5 text-xs font-semibold text-[#7b6258]">
+              Cảm nhận
+              <textarea name="content" required rows="4" placeholder="Viết cảm nhận hoặc lời nhắn của bạn về kỷ niệm này..." class="w-full rounded-2xl border border-[#ead7ca] bg-[#fffaf5] px-4 py-3 text-sm font-medium leading-6 text-[#32131c] outline-none placeholder:text-[#ab9389] focus:border-[#d84d80] focus-visible:ring-2 focus-visible:ring-[#f4cad8]"></textarea>
+            </label>
+            <button type="submit" class="mt-3 inline-flex min-h-12 items-center justify-center rounded-full bg-[#812744] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#6f203a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e6a4ba] active:translate-y-px">
+              Gửi bình luận
+            </button>
+          </form>
         </div>
 
-        <audio x-ref="audio" src="{{ $musicUrl }}" loop preload="metadata" x-on:play="playing = true" x-on:pause="playing = false" x-on:ended="playing = false"></audio>
+        <aside class="rounded-[2rem] border border-[#eed2dc] bg-[#fbe8ef] p-4 shadow-[0_24px_80px_rgba(129,39,68,0.08)] sm:p-6 lg:sticky lg:top-6 lg:self-start">
+          <p class="font-['Dancing_Script'] text-2xl leading-none text-[#b83265]">Chỉ gửi riêng</p>
+          <h3 class="memory-heading mt-1 text-3xl font-semibold leading-tight text-[#812744]">Một lời nhắn không cần công khai.</h3>
+          <p class="mt-3 text-sm leading-6 text-[#7b4d5d]">Tin nhắn riêng chỉ được gửi tới admin của kỷ niệm này.</p>
+
+          <form method="POST" action="{{ route('memories.messages.store', $post->slug) }}" class="mt-5">
+            @csrf
+            <div class="grid gap-3">
+              <input name="name" required autocomplete="name" aria-label="Tên của bạn" placeholder="Tên của bạn…" class="min-h-12 rounded-2xl border border-white/90 bg-white/82 px-4 py-3 text-sm font-medium text-[#32131c] outline-none placeholder:text-[#9d7581] focus:border-[#d84d80] focus-visible:ring-2 focus-visible:ring-white">
+              <input name="email" type="email" autocomplete="email" spellcheck="false" aria-label="Email nếu muốn" placeholder="Email nếu muốn…" class="min-h-12 rounded-2xl border border-white/90 bg-white/82 px-4 py-3 text-sm font-medium text-[#32131c] outline-none placeholder:text-[#9d7581] focus:border-[#d84d80] focus-visible:ring-2 focus-visible:ring-white">
+              <textarea name="message" required rows="5" aria-label="Tin nhắn riêng" placeholder="Tin nhắn này chỉ admin đọc…" class="w-full rounded-2xl border border-white/90 bg-white/82 px-4 py-3 text-sm font-medium leading-6 text-[#32131c] outline-none placeholder:text-[#9d7581] focus:border-[#d84d80] focus-visible:ring-2 focus-visible:ring-white"></textarea>
+            </div>
+            <button type="submit" class="mt-3 inline-flex min-h-12 w-full items-center justify-center rounded-full border border-[#812744]/20 bg-white px-5 py-3 text-sm font-semibold text-[#812744] transition hover:border-[#812744]/40 hover:bg-[#fff8fb] focus:outline-none focus-visible:ring-2 focus-visible:ring-white active:translate-y-px">
+              Gửi riêng
+            </button>
+          </form>
+        </aside>
       </div>
     </section>
-  @endif
+
+    @if($related->isNotEmpty())
+      <section class="bg-[#f7eee8] px-4 py-12 sm:px-5 sm:py-16">
+        <div class="mx-auto max-w-6xl">
+          <div class="mb-6 max-w-2xl">
+            <p class="font-['Dancing_Script'] text-3xl leading-none text-[#c05779]">Đi tiếp một chút</p>
+            <div class="mt-2 flex items-end justify-between gap-4">
+              <h2 class="memory-heading text-balance text-4xl font-semibold leading-tight text-[#32131c] sm:text-5xl">Kỷ niệm liên quan</h2>
+              <a href="{{ route('memories.index') }}" class="hidden shrink-0 rounded-full border border-[#d9a2a9] px-4 py-2 text-sm font-semibold text-[#812744] transition hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e6a4ba] sm:inline-flex">Xem tất cả</a>
+            </div>
+          </div>
+
+          <div class="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0">
+            @foreach($related as $item)
+              <article class="w-[76%] shrink-0 snap-center sm:w-auto">
+                <x-memory-card :post="$item" />
+              </article>
+            @endforeach
+          </div>
+        </div>
+      </section>
+    @endif
+
+  </div>
 @endsection
