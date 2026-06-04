@@ -17,7 +17,7 @@ class SectionTypeSeeder extends Seeder
             ['Gallery Slider', 'gallery_slider', 'gallery', ['items' => 'array'], ['featured_moments', 'minimal_slider'], true],
             ['Video Upload', 'video_embed', 'video', ['media_id' => 'integer', 'caption' => 'string'], ['clean_video', 'vertical'], true],
             ['Quote', 'quote', 'text', ['quote' => 'string', 'author' => 'string'], ['soft_card', 'large_center'], true],
-            ['Music', 'music', 'audio', ['url' => 'url', 'title' => 'string', 'artist' => 'string'], ['floating_player'], true],
+            ['Music', 'music', 'legacy', ['title' => 'string', 'artist' => 'string'], ['floating_player'], false],
             ['Rich Text', 'rich_text', 'legacy', ['html' => 'html'], ['prose'], false],
             ['Image Text', 'image_text', 'legacy', ['media_id' => 'integer', 'body' => 'html'], ['image_left_text_right'], false],
             ['Timeline', 'timeline', 'story', ['items' => 'array'], ['vertical'], true],

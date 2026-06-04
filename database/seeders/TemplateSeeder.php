@@ -82,7 +82,6 @@ class TemplateSeeder extends Seeder
                         'gallery_grid',
                         'single_image',
                         'video_embed',
-                        'music',
                         'timeline',
                     ],
                     'settings' => [

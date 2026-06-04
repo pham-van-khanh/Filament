@@ -15,13 +15,11 @@
 @section('post_content')
   @php
     $visibleSections = collect($post->visibleSections);
-    $musicSections = $visibleSections->filter(fn ($section) => $section->component_type === 'music' || $section->type === 'music');
     $storySections = $visibleSections->reject(fn ($section) => $section->component_type === 'music' || $section->type === 'music');
-    $musicSection = $musicSections->first(fn ($section) => filled($section->url));
-    $musicUrl = $post->music_url ?: $musicSection?->url;
+    $musicUrl = $post->music_url;
     $hasPostMusic = filled($musicUrl);
-    $musicTitle = $post->music_title ?: $musicSection?->headline ?: 'Soundtrack của kỷ niệm';
-    $musicArtist = $post->music_artist ?: $musicSection?->subtitle;
+    $musicTitle = $post->music_title ?: 'Soundtrack của kỷ niệm';
+    $musicArtist = $post->music_artist;
     $publishedLine = $post->published_at?->format('d/m/Y');
   @endphp
 

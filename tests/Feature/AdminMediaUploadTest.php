@@ -209,7 +209,6 @@ class AdminMediaUploadTest extends TestCase
                         'title' => 'Video chuyen di',
                         'media_id' => $videoId,
                         'caption' => 'Video da upload.',
-                        'url' => 'https://example.com/not-accepted-as-video.mp4',
                         'layout' => 'clean_video',
                         'is_visible' => '1',
                     ],
@@ -221,7 +220,6 @@ class AdminMediaUploadTest extends TestCase
             'post_id' => $post->id,
             'type' => 'video_embed',
             'media_id' => $videoId,
-            'url' => null,
         ]);
     }
 

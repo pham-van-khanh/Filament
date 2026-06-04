@@ -6,37 +6,54 @@
   <title>Editor - {{ $post->title }}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-[#efede7] font-sans text-neutral-900">
+<body class="editor-body text-neutral-900">
   <form method="POST" action="{{ route('admin.memories.editor.update', $post) }}" id="editorForm" class="min-h-screen">
     @csrf
     @method('PUT')
 
     <div id="sectionInputs"></div>
 
-    <header class="sticky top-0 z-40 flex h-[68px] items-center gap-3 border-b border-black/10 bg-white/95 px-4 backdrop-blur-xl">
-      <a href="{{ route('home') }}" class="text-xl font-bold text-[#812744]">chuaminh.vn</a>
-      <span class="hidden h-8 w-px bg-black/10 md:block"></span>
-      <span class="hidden min-w-0 truncate rounded-xl bg-neutral-100 px-3 py-2 text-xs font-semibold text-neutral-600 lg:block">memories/{{ $post->slug }}</span>
-      <button type="button" id="mobilePreview" class="editor-pill bg-white">Mobile</button>
-      <button type="button" id="desktopPreview" class="editor-pill bg-white">Desktop</button>
-      <span class="ml-auto hidden text-sm font-semibold text-emerald-700 md:inline-flex">Da luu cuc bo</span>
-      <a href="{{ route('memories.show', $post->slug) }}" target="_blank" class="editor-pill bg-white">Xem truoc</a>
-      <button type="submit" data-submit-status="draft" class="editor-pill bg-white">Luu nhap</button>
-      <button type="submit" data-submit-status="published" class="editor-pill border-[#812744] bg-[#812744] text-white">Dang bai</button>
+    <header class="editor-topbar">
+      <a href="{{ route('home') }}" class="editor-brand" aria-label="Ve trang chu">
+        <span class="editor-brand-mark">c</span>
+        <span>chuaminh.vn</span>
+      </a>
+      <span class="hidden h-8 w-px bg-[#eadbd1] md:block"></span>
+      <span class="editor-slug-chip">memories/{{ $post->slug }}</span>
+
+      <div class="editor-device-switch" aria-label="Che do preview">
+        <button type="button" id="mobilePreview" class="editor-device-button active">Mobile</button>
+        <button type="button" id="desktopPreview" class="editor-device-button">Desktop</button>
+      </div>
+
+      <span class="editor-save-state">Da luu cuc bo</span>
+
+      <div class="editor-actions">
+        <a href="{{ route('memories.show', $post->slug) }}" target="_blank" class="editor-pill editor-pill-ghost">Xem truoc</a>
+        <button type="submit" data-submit-status="draft" class="editor-pill editor-pill-ghost">Luu nhap</button>
+        <button type="submit" data-submit-status="published" class="editor-pill editor-pill-primary">Dang bai</button>
+      </div>
     </header>
 
     <div class="editor-workspace">
-      <aside class="editor-sidebar border-r">
-        <div class="flex border-b border-black/10 text-sm font-semibold">
+      <aside class="editor-sidebar editor-library border-r">
+        <div class="editor-sidebar-heading">
+          <div>
+            <p>Thu vien dung cu</p>
+            <span>Template, block va media</span>
+          </div>
+        </div>
+
+        <div class="editor-tabs">
           <button type="button" data-editor-tab="templates" class="editor-tab active">Template</button>
           <button type="button" data-editor-tab="blocks" class="editor-tab">Blocks</button>
           <button type="button" data-editor-tab="media" class="editor-tab">Anh</button>
         </div>
 
-        <div data-tab-panel="templates" class="space-y-6 p-4">
+        <div data-tab-panel="templates" class="editor-tab-panel space-y-6 p-4">
           @foreach($templates->groupBy('category') as $group => $items)
             <section>
               <h2 class="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">{{ $group }}</h2>
@@ -57,7 +74,7 @@
           @endforeach
         </div>
 
-        <div data-tab-panel="blocks" class="hidden p-4">
+        <div data-tab-panel="blocks" class="editor-tab-panel hidden p-4">
           @foreach($addableSectionTypes->groupBy('category') as $group => $items)
             <section class="mb-6">
               <h2 class="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">{{ $group }}</h2>
@@ -73,13 +90,13 @@
           @endforeach
         </div>
 
-        <div data-tab-panel="media" class="hidden p-4">
-          <label for="mediaUploadInput" class="mb-3 block cursor-pointer rounded-xl border border-dashed border-[#e34d86] bg-[#fff7fb] px-4 py-4 text-center text-sm font-bold text-[#812744]">Upload anh/video/nhac</label>
+        <div data-tab-panel="media" class="editor-tab-panel hidden p-4">
+          <label for="mediaUploadInput" class="editor-upload-drop mb-3">Upload anh/video/nhac</label>
           <input id="mediaUploadInput" type="file" accept="image/*,video/*,audio/*,application/pdf" multiple class="sr-only">
           <p id="mediaUploadStatus" class="mb-4 min-h-5 text-xs font-semibold text-neutral-500"></p>
           <div id="mediaLibrary" class="grid grid-cols-3 gap-2">
             @foreach($media as $item)
-              <button type="button" class="aspect-square overflow-hidden rounded-xl bg-neutral-100 ring-1 ring-black/5" data-media-id="{{ $item->id }}" title="{{ $item->original_name }}">
+              <button type="button" class="editor-media-thumb" data-media-id="{{ $item->id }}" title="{{ $item->original_name }}">
                 @if($item->display_url && $item->type === \App\Enums\MediaType::Image)
                   <img src="{{ $item->display_url }}" alt="{{ $item->alt }}" class="h-full w-full object-cover">
                 @else
@@ -91,28 +108,43 @@
         </div>
       </aside>
 
-      <main class="overflow-auto p-4 md:p-7">
-        <div id="canvasShell" class="mx-auto w-[390px] max-w-full transition-all">
-          <div class="overflow-hidden rounded-[22px] border border-black/15 bg-white shadow-2xl">
-            <div class="flex h-8 items-center justify-between bg-white px-4 text-xs font-bold text-neutral-500">
+      <main class="editor-stage">
+        <div class="editor-preview-toolbar">
+          <div class="min-w-0">
+            <p>Live preview</p>
+            <h1>{{ $post->title }}</h1>
+          </div>
+          <span id="previewModeLabel">Mobile</span>
+        </div>
+
+        <div id="canvasShell" class="editor-canvas-shell mx-auto w-[390px] max-w-full">
+          <div class="editor-phone-frame">
+            <div class="editor-phone-status">
               <span>9:41</span>
               <span>chuaminh.vn</span>
             </div>
-            <div id="canvas" class="min-h-[620px] bg-white">
+            <div id="canvas" class="editor-canvas">
               <div id="canvasBlocks"></div>
-              <button type="button" id="addDefaultBlock" class="m-4 w-[calc(100%-32px)] rounded-xl border border-dashed border-neutral-400 py-4 text-sm font-bold text-neutral-500">Them block</button>
+              <button type="button" id="addDefaultBlock" class="editor-add-default">Them block</button>
             </div>
           </div>
         </div>
       </main>
 
-      <aside class="editor-sidebar border-l">
-        <div class="border-b border-black/10 p-4">
-          <p class="truncate text-xs font-bold uppercase tracking-[0.16em] text-blue-700">/memories/{{ $post->slug }}</p>
+      <aside class="editor-sidebar editor-inspector border-l">
+        <div class="editor-inspector-head">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <p class="truncate text-xs font-bold uppercase tracking-[0.16em] text-[#8d5a48]">/memories/{{ $post->slug }}</p>
+              <h2 id="rightPanelTitle" class="mt-2 truncate text-sm font-extrabold uppercase tracking-[0.14em] text-neutral-700">Cai dat bai viet</h2>
+              <p id="rightPanelHint" class="mt-1 text-xs font-semibold leading-5 text-neutral-500">Chinh thong tin chung, nhac nen va thu tu layers.</p>
+            </div>
+            <button type="button" id="showPostSettings" class="hidden shrink-0 rounded-full border border-[#ead7ca] bg-white px-3 py-1.5 text-xs font-bold text-[#812744] shadow-sm transition hover:border-[#812744] focus:outline-none focus:ring-2 focus:ring-[#e34d86]/25">Bai viet</button>
+          </div>
         </div>
 
         <div class="space-y-4 p-4">
-          <section class="editor-soft-panel">
+          <section id="postSettingsPanel" class="editor-soft-panel">
             <div class="mb-3 flex items-center justify-between">
               <h2 class="text-sm font-extrabold uppercase tracking-[0.14em] text-neutral-600">Bai viet</h2>
               <span class="rounded-full bg-neutral-100 px-2 py-1 text-[11px] font-bold text-neutral-500">{{ $post->status->value }}</span>
@@ -184,7 +216,7 @@
             </div>
           </section>
 
-          <section class="editor-soft-panel">
+          <section id="musicSettingsPanel" class="editor-soft-panel">
             <div class="mb-3 flex items-center justify-between">
               <h2 class="text-sm font-extrabold uppercase tracking-[0.14em] text-neutral-600">Nhac nen</h2>
               <label class="inline-flex items-center gap-2 text-xs font-bold text-neutral-600">
@@ -199,7 +231,7 @@
             </div>
           </section>
 
-          <section class="editor-soft-panel">
+          <section id="blockSettingsPanel" class="editor-soft-panel hidden">
             <div class="mb-3 flex items-center justify-between">
               <h2 class="text-sm font-extrabold uppercase tracking-[0.14em] text-neutral-600">Block dang chon</h2>
               <button type="button" id="duplicateBlock" class="text-xs font-bold text-[#e34d86]">Nhan doi</button>
@@ -248,10 +280,6 @@
                 <div data-items-editor="stats" class="space-y-2"></div>
               </div>
 
-              <div data-block-panel="rich_text" class="editor-panel">
-                <label class="editor-field"><span>Noi dung</span><textarea data-bind="body" rows="8" placeholder="Viet mot doan ve ky niem nay..."></textarea></label>
-              </div>
-
               <div data-block-panel="quote" class="editor-panel">
                 <label class="editor-field"><span>Noi dung trich dan</span><textarea data-bind="quote_text" rows="5"></textarea></label>
                 <label class="editor-field"><span>Nguoi viet/nguon</span><input data-bind="quote_author"></label>
@@ -261,12 +289,6 @@
                 <label class="editor-field"><span>Anh</span><select data-bind="media_id" data-media-select data-media-type="image"></select></label>
                 <label class="editor-field"><span>Caption</span><textarea data-bind="caption" rows="3"></textarea></label>
                 <label class="editor-field"><span>Chieu cao</span><select data-bind="height"><option value="">Tu dong</option><option value="280px">280px</option><option value="420px">420px</option><option value="620px">620px</option></select></label>
-              </div>
-
-              <div data-block-panel="image_text" class="editor-panel">
-                <label class="editor-field"><span>Anh</span><select data-bind="media_id" data-media-select data-media-type="image"></select></label>
-                <label class="editor-field"><span>Noi dung</span><textarea data-bind="body" rows="6"></textarea></label>
-                <label class="editor-field"><span>Layout</span><select data-bind="layout"><option value="">Anh trai</option><option value="text_left">Chu trai</option><option value="stacked">Xep doc</option></select></label>
               </div>
 
               <div data-block-panel="gallery_grid" class="editor-panel">
@@ -298,15 +320,6 @@
                 <label class="editor-field"><span>Ty le khung hinh</span><select data-bind="layout"><option value="">16:9 ngang</option><option value="square">1:1 vuong</option><option value="vertical">9:16 doc</option></select></label>
               </div>
 
-              <div data-block-panel="music" class="editor-panel">
-                <label class="editor-field"><span>Link nhac</span><input data-bind="url" placeholder="Spotify, SoundCloud, MP3..."></label>
-                <div class="grid grid-cols-2 gap-3">
-                  <label class="editor-field"><span>Ten bai</span><input data-bind="headline"></label>
-                  <label class="editor-field"><span>Nghe si</span><input data-bind="subtitle"></label>
-                </div>
-                <label class="flex items-center gap-2 text-sm font-bold text-neutral-700"><input type="checkbox" data-bind="autoplay"> Tu dong phat khi vao trang</label>
-              </div>
-
               <div data-block-panel="timeline" class="editor-panel">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold uppercase tracking-[0.14em] text-neutral-500">Cac moc ky niem</span>
@@ -315,15 +328,9 @@
                 <div data-items-editor="timeline" class="space-y-2"></div>
               </div>
 
-              <div data-block-panel="ending" class="editor-panel">
-                <label class="editor-field"><span>Tieu de ket</span><input data-bind="headline"></label>
-                <label class="editor-field"><span>Noi dung ket</span><textarea data-bind="body" rows="6"></textarea></label>
-              </div>
-
               <div data-block-panel="default" class="editor-panel">
                 <label class="editor-field"><span>Anh</span><select data-bind="media_id" data-media-select data-media-type="image"></select></label>
-                <label class="editor-field"><span>Noi dung</span><textarea data-bind="body" rows="4"></textarea></label>
-                <label class="editor-field"><span>Caption/link</span><input data-bind="caption"></label>
+                <label class="editor-field"><span>Caption</span><input data-bind="caption"></label>
               </div>
 
               <div class="flex gap-2 pt-2">
@@ -332,8 +339,11 @@
             </div>
           </section>
 
-          <section class="editor-soft-panel">
-            <h2 class="mb-3 text-sm font-extrabold uppercase tracking-[0.14em] text-neutral-600">Layers</h2>
+          <section id="layersSettingsPanel" class="editor-soft-panel">
+            <div class="mb-3 flex items-center justify-between gap-3">
+              <h2 class="text-sm font-extrabold uppercase tracking-[0.14em] text-neutral-600">Layers</h2>
+              <span id="layerCountLabel" class="text-xs font-bold text-neutral-400">{{ $post->sections->count() }} block</span>
+            </div>
             <div id="layerList" class="space-y-2"></div>
           </section>
         </div>
@@ -369,11 +379,9 @@
         'variant' => $section->variant,
         'media_id' => $section->media_id,
         'headline' => $section->headline,
-        'body' => $section->body,
         'quote_text' => $section->quote_text,
         'quote_author' => $section->quote_author,
         'caption' => $section->caption,
-        'url' => $section->url,
         'height' => $section->height,
         'layout' => $section->layout,
         'autoplay' => $section->autoplay,
@@ -389,13 +397,24 @@
     const mediaUploadUrl = @json(route('admin.media.upload'));
     const csrfToken = @json(csrf_token());
     let sections = @json($editorSections);
-    let selected = sections.length ? 0 : -1;
+    let selected = -1;
 
     const canvasBlocks = document.getElementById('canvasBlocks');
     const sectionInputs = document.getElementById('sectionInputs');
     const layerList = document.getElementById('layerList');
+    const layerCountLabel = document.getElementById('layerCountLabel');
     const blockEditorPanel = document.getElementById('blockEditorPanel');
     const emptyBlockPanel = document.getElementById('emptyBlockPanel');
+    const postSettingsPanel = document.getElementById('postSettingsPanel');
+    const musicSettingsPanel = document.getElementById('musicSettingsPanel');
+    const blockSettingsPanel = document.getElementById('blockSettingsPanel');
+    const layersSettingsPanel = document.getElementById('layersSettingsPanel');
+    const rightPanelTitle = document.getElementById('rightPanelTitle');
+    const rightPanelHint = document.getElementById('rightPanelHint');
+    const showPostSettings = document.getElementById('showPostSettings');
+    const previewModeLabel = document.getElementById('previewModeLabel');
+    const mobilePreviewButton = document.getElementById('mobilePreview');
+    const desktopPreviewButton = document.getElementById('desktopPreview');
     const mediaLibrary = document.getElementById('mediaLibrary');
     const mediaUploadInput = document.getElementById('mediaUploadInput');
     const videoUploadInput = document.getElementById('videoUploadInput');
@@ -403,7 +422,7 @@
     const coverMediaSelect = document.getElementById('coverMediaSelect');
     const statusSelect = document.getElementById('statusSelect');
 
-    const simpleFields = ['type', 'title', 'subtitle', 'variant', 'media_id', 'headline', 'body', 'quote_text', 'quote_author', 'caption', 'url', 'height', 'layout', 'autoplay', 'is_visible'];
+    const simpleFields = ['type', 'title', 'subtitle', 'variant', 'media_id', 'headline', 'quote_text', 'quote_author', 'caption', 'height', 'layout', 'autoplay', 'is_visible'];
     const itemFields = ['media_id', 'title', 'subtitle', 'value', 'label', 'time_label', 'body', 'caption', 'url'];
 
     function escapeHtml(value) {
@@ -432,8 +451,108 @@
       return `<option value="">Khong chon</option>` + available.map((item) => `<option value="${item.id}" ${Number(item.id) === Number(selectedId) ? 'selected' : ''}>${escapeHtml(item.name)}</option>`).join('');
     }
 
+    function mediaItemsForType(requiredType = '') {
+      if (!requiredType) return media;
+
+      return media.filter((item) => item.type === requiredType);
+    }
+
+    function syncMediaPickerState(picker, selectedId) {
+      picker.querySelectorAll('[data-picker-media-id]').forEach((button) => {
+        button.classList.toggle('is-selected', Number(button.dataset.pickerMediaId) === Number(selectedId));
+      });
+    }
+
+    function renderMediaPicker(select, selectedId = '', requiredType = '') {
+      const existingId = select.dataset.mediaPickerId;
+      if (existingId) {
+        document.querySelector(`[data-media-picker-owner="${existingId}"]`)?.remove();
+      }
+
+      const available = mediaItemsForType(requiredType);
+      const pickerId = existingId || `media-picker-${Math.random().toString(36).slice(2)}`;
+      select.dataset.mediaPickerId = pickerId;
+
+      const picker = document.createElement('div');
+      picker.className = 'editor-media-picker';
+      picker.dataset.mediaPickerOwner = pickerId;
+
+      if (!available.length) {
+        picker.innerHTML = `<p class="editor-media-picker-empty">Chua co media phu hop.</p>`;
+      } else {
+        picker.innerHTML = available.map((item) => {
+          const isSelected = Number(item.id) === Number(selectedId);
+          const preview = item.url && item.type === 'image'
+            ? `<img src="${item.url}" alt="${escapeHtml(item.name || '')}" loading="lazy">`
+            : `<span class="editor-media-picker-file">${escapeHtml(item.type || 'file')}</span>`;
+
+          return `<button type="button" class="editor-media-picker-item ${isSelected ? 'is-selected' : ''}" data-picker-media-id="${item.id}" title="${escapeHtml(item.name || '')}">
+            <span class="editor-media-picker-frame">${preview}</span>
+            <span class="editor-media-picker-name">${escapeHtml(item.name || 'Media')}</span>
+          </button>`;
+        }).join('');
+      }
+
+      picker.querySelectorAll('[data-picker-media-id]').forEach((button) => {
+        button.addEventListener('click', () => {
+          select.value = button.dataset.pickerMediaId;
+          syncMediaPickerState(picker, select.value);
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+      });
+
+      requestAnimationFrame(() => {
+        const selectedButton = picker.querySelector('.is-selected');
+        if (!selectedButton || !picker.clientWidth) return;
+        picker.scrollLeft = selectedButton.offsetLeft - ((picker.clientWidth - selectedButton.clientWidth) / 2);
+      });
+
+      const label = select.closest('label.editor-field');
+      if (label?.parentNode) {
+        label.insertAdjacentElement('afterend', picker);
+      } else {
+        select.insertAdjacentElement('afterend', picker);
+      }
+    }
+
     function currentSection() {
       return sections[selected] || null;
+    }
+
+    function sectionPanelTitle(section) {
+      if (!section) return 'Cai dat bai viet';
+
+      return section.headline
+        || section.title
+        || sectionLabels[section.type]
+        || 'Block dang chon';
+    }
+
+    function renderRightPanelMode(section) {
+      const hasSection = Boolean(section);
+
+      postSettingsPanel?.classList.toggle('hidden', hasSection);
+      musicSettingsPanel?.classList.toggle('hidden', hasSection);
+      layersSettingsPanel?.classList.toggle('hidden', hasSection);
+      blockSettingsPanel?.classList.toggle('hidden', !hasSection);
+      showPostSettings?.classList.toggle('hidden', !hasSection);
+
+      if (rightPanelTitle) {
+        rightPanelTitle.textContent = hasSection ? sectionPanelTitle(section) : 'Cai dat bai viet';
+      }
+
+      if (rightPanelHint) {
+        rightPanelHint.textContent = hasSection
+          ? `${sectionLabels[section.type] || section.type} - chi hien field cua block nay.`
+          : 'Chinh thong tin chung, nhac nen va thu tu layers.';
+      }
+    }
+
+    function setPreviewMode(width, label) {
+      document.getElementById('canvasShell').style.width = width;
+      if (previewModeLabel) previewModeLabel.textContent = label;
+      mobilePreviewButton?.classList.toggle('active', label === 'Mobile');
+      desktopPreviewButton?.classList.toggle('active', label === 'Desktop');
     }
 
     function firstImageId() {
@@ -480,11 +599,9 @@
         variant: '',
         media_id: firstImageId(),
         headline: '',
-        body: '',
         quote_text: '',
         quote_author: '',
         caption: '',
-        url: '',
         height: '',
         layout: '',
         autoplay: false,
@@ -498,21 +615,11 @@
         base.height = '520px';
       }
 
-      if (type === 'rich_text') base.body = 'Viet mot doan ngan ve ky niem nay...';
       if (type === 'quote') base.quote_text = 'Sau nay neu co met, minh lai mo nhung tam anh nay ra.';
       if (type === 'single_image') base.caption = 'Ghi chu cho tam anh nay.';
-      if (type === 'image_text') base.body = 'Ke mot cau chuyen ngan di kem buc anh.';
       if (type === 'video_embed') {
         base.media_id = firstVideoId();
         base.caption = 'Ghi chu cho video nay.';
-      }
-      if (type === 'music') {
-        base.headline = 'Our Memory Song';
-        base.subtitle = 'chuaminh.vn';
-      }
-      if (type === 'ending') {
-        base.headline = 'Cam on vi da di cung nhau';
-        base.body = 'Viet mot loi ket that nhe cho bai viet.';
       }
 
       ensureItems(base);
@@ -594,12 +701,12 @@
         </button>`;
       }
 
-      if (section.type === 'single_image' || section.type === 'image_text') {
+      if (section.type === 'single_image') {
         const image = mediaUrl(section.media_id);
         return `<button type="button" data-index="${index}" class="editor-block-card ${active} ${hidden} bg-white p-4 text-left">
           ${image ? `<span class="mb-3 block h-44 rounded-xl bg-cover bg-center" style="background-image:url('${image}')"></span>` : ''}
           <p class="font-bold">${escapeHtml(section.title || sectionLabels[section.type])}</p>
-          <p class="mt-1 text-sm text-neutral-500">${escapeHtml(section.caption || section.body || '')}</p>
+          <p class="mt-1 text-sm text-neutral-500">${escapeHtml(section.caption || '')}</p>
         </button>`;
       }
 
@@ -618,11 +725,15 @@
       return `<button type="button" data-index="${index}" class="editor-block-card ${active} ${hidden} bg-white p-4 text-left">
         <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-[#812744]">${escapeHtml(sectionLabels[section.type] || section.type)}</p>
         <h3 class="mt-2 text-lg font-bold">${escapeHtml(title)}</h3>
-        <p class="mt-1 line-clamp-2 text-sm text-neutral-500">${escapeHtml(section.caption || section.body || section.url || '')}</p>
+        <p class="mt-1 line-clamp-2 text-sm text-neutral-500">${escapeHtml(section.caption || '')}</p>
       </button>`;
     }
 
     function renderLayers() {
+      if (layerCountLabel) {
+        layerCountLabel.textContent = `${sections.length} block`;
+      }
+
       layerList.innerHTML = sections.map((section, index) => `
         <button type="button" data-layer-index="${index}" class="editor-layer ${index === selected ? 'active' : ''}">
           <span class="truncate">${index + 1}. ${escapeHtml(section.title || sectionLabels[section.type] || section.type)}</span>
@@ -694,6 +805,10 @@
         input.addEventListener('change', updateItemFromInput);
       });
 
+      document.querySelectorAll('[data-item-field="media_id"]').forEach((select) => {
+        renderMediaPicker(select, select.value, 'image');
+      });
+
       document.querySelectorAll('[data-remove-item]').forEach((button) => {
         button.addEventListener('click', () => {
           const section = currentSection();
@@ -706,13 +821,25 @@
 
     function renderBlockPanel() {
       const section = currentSection();
+      renderRightPanelMode(section);
       emptyBlockPanel.classList.toggle('hidden', Boolean(section));
       blockEditorPanel.classList.toggle('hidden', !section);
 
-      if (!section) return;
+      if (!section) {
+        document.querySelectorAll('[data-block-panel]').forEach((panel) => {
+          panel.classList.add('hidden');
+        });
+
+        document.querySelectorAll('[data-items-editor]').forEach((container) => {
+          container.innerHTML = '';
+        });
+
+        return;
+      }
 
       document.querySelectorAll('[data-media-select]').forEach((select) => {
         select.innerHTML = mediaOptions(section[select.dataset.bind], select.dataset.mediaType || '');
+        renderMediaPicker(select, section[select.dataset.bind], select.dataset.mediaType || '');
       });
 
       document.querySelectorAll('[data-bind]').forEach((input) => {
@@ -731,11 +858,12 @@
       renderCanvas();
       renderLayers();
       renderHiddenInputs();
+      renderRightPanelMode(currentSection());
       if (rerenderPanel) renderBlockPanel();
     }
 
     function selectBlock(index) {
-      selected = index;
+      selected = sections[index] ? index : -1;
       renderAll();
     }
 
@@ -826,7 +954,7 @@
     function appendMediaButton(item) {
       const button = document.createElement('button');
       button.type = 'button';
-      button.className = 'aspect-square overflow-hidden rounded-xl bg-neutral-100 ring-1 ring-black/5';
+      button.className = 'editor-media-thumb';
       button.dataset.mediaId = item.id;
       button.title = item.name || '';
 
@@ -845,6 +973,18 @@
 
       bindMediaButton(button);
       mediaLibrary.prepend(button);
+    }
+
+    function uploadErrorMessage(response, payload) {
+      const firstValidationMessage = Object.values(payload.errors || {})?.flat()?.[0];
+      if (firstValidationMessage) return firstValidationMessage;
+      if (payload.message) return payload.message;
+      if (response.status === 413) return 'Tep qua lon so voi gioi han server hien tai.';
+      if (response.status === 419) return 'Phien dang nhap da het han. Tai lai trang roi thu lai.';
+      if (response.status === 401) return 'Ban can dang nhap admin de upload.';
+      if (response.status === 422) return 'Tep upload khong hop le hoac khong dung dinh dang.';
+
+      return `Upload that bai (${response.status}). Vui long thu lai.`;
     }
 
     document.querySelectorAll('[data-editor-tab]').forEach((tab) => {
@@ -877,6 +1017,11 @@
       button.addEventListener('click', () => {
         statusSelect.value = button.dataset.submitStatus;
       });
+    });
+
+    showPostSettings?.addEventListener('click', () => {
+      selected = -1;
+      renderAll();
     });
 
     document.getElementById('addDefaultBlock').addEventListener('click', () => {
@@ -923,7 +1068,7 @@
           const payload = await response.json().catch(() => ({}));
 
           if (!response.ok) {
-            throw new Error(payload.message || 'Upload that bai. Vui long thu lai.');
+            throw new Error(uploadErrorMessage(response, payload));
           }
 
           const item = {
@@ -955,8 +1100,8 @@
       uploadFiles(Array.from(videoUploadInput.files || []), videoUploadInput);
     });
 
-    document.getElementById('mobilePreview').addEventListener('click', () => document.getElementById('canvasShell').style.width = '390px');
-    document.getElementById('desktopPreview').addEventListener('click', () => document.getElementById('canvasShell').style.width = '760px');
+    mobilePreviewButton?.addEventListener('click', () => setPreviewMode('390px', 'Mobile'));
+    desktopPreviewButton?.addEventListener('click', () => setPreviewMode('760px', 'Desktop'));
     document.getElementById('editorForm').addEventListener('submit', renderHiddenInputs);
 
     window.addEventListener('DOMContentLoaded', () => {

@@ -20,11 +20,9 @@ class PostSection extends Model
         'variant',
         'media_id',
         'headline',
-        'body',
         'quote_text',
         'quote_author',
         'caption',
-        'url',
         'height',
         'layout',
         'autoplay',
@@ -122,7 +120,6 @@ class PostSection extends Model
             ],
             'image_text' => [
                 'media_id' => $this->media_id,
-                'body' => $this->body,
                 'caption' => $this->caption,
             ],
             'quote' => [
@@ -130,11 +127,10 @@ class PostSection extends Model
                 'author' => $this->quote_author,
             ],
             'rich_text' => [
-                'html' => $this->body,
+                'html' => null,
             ],
             'video_embed' => [
                 'media_id' => $this->media_id,
-                'url' => $this->url,
                 'caption' => $this->caption,
                 'layout' => $this->layout,
             ],
@@ -144,8 +140,6 @@ class PostSection extends Model
                 'loop' => true,
                 'title' => $this->headline,
                 'artist' => $this->subtitle,
-                'url' => $this->url,
-                'src' => $this->url,
                 'caption' => $this->caption,
             ],
             'timeline' => [
@@ -153,13 +147,11 @@ class PostSection extends Model
             ],
             'ending' => [
                 'title' => $this->headline,
-                'body' => $this->body,
+                'body' => null,
             ],
             default => [
                 'media_id' => $this->media_id,
-                'body' => $this->body,
                 'caption' => $this->caption,
-                'url' => $this->url,
             ],
         };
     }

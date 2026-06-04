@@ -48,7 +48,6 @@ class MemoryEditorController extends Controller
                 'gallery_slider',
                 'video_embed',
                 'quote',
-                'music',
                 'timeline',
             ])
             ->values();
@@ -88,11 +87,9 @@ class MemoryEditorController extends Controller
             'sections.*.variant' => ['nullable', 'string', 'max:120'],
             'sections.*.media_id' => ['nullable', 'integer', 'exists:media,id'],
             'sections.*.headline' => ['nullable', 'string', 'max:255'],
-            'sections.*.body' => ['nullable', 'string'],
             'sections.*.quote_text' => ['nullable', 'string'],
             'sections.*.quote_author' => ['nullable', 'string', 'max:180'],
             'sections.*.caption' => ['nullable', 'string', 'max:1000'],
-            'sections.*.url' => ['nullable', 'string', 'max:2048'],
             'sections.*.height' => ['nullable', 'string', 'max:40'],
             'sections.*.layout' => ['nullable', 'string', 'max:120'],
             'sections.*.autoplay' => ['nullable', 'boolean'],
@@ -157,11 +154,9 @@ class MemoryEditorController extends Controller
                 'variant' => $section['variant'] ?? null,
                 'media_id' => $section['media_id'] ?? null,
                 'headline' => $section['headline'] ?? null,
-                'body' => $this->normaliseSectionBody($section['type'], $section['body'] ?? null),
                 'quote_text' => $section['quote_text'] ?? null,
                 'quote_author' => $section['quote_author'] ?? null,
                 'caption' => $section['caption'] ?? null,
-                'url' => $section['type'] === 'video_embed' ? null : ($section['url'] ?? null),
                 'height' => $section['height'] ?? null,
                 'layout' => $section['layout'] ?? null,
                 'autoplay' => (bool) ($section['autoplay'] ?? false),
@@ -233,21 +228,6 @@ class MemoryEditorController extends Controller
         return collect($item)
             ->except(['sort_order'])
             ->contains(fn ($value) => filled($value));
-    }
-
-    protected function normaliseSectionBody(string $type, ?string $body): ?string
-    {
-        if (! filled($body) || ! in_array($type, ['rich_text', 'image_text', 'ending'], true)) {
-            return $body;
-        }
-
-        if (str_contains($body, '<')) {
-            return $body;
-        }
-
-        return collect(preg_split('/\R{2,}/', trim($body)) ?: [])
-            ->map(fn (string $paragraph): string => '<p>'.e(trim($paragraph)).'</p>')
-            ->implode("\n");
     }
 
 }
